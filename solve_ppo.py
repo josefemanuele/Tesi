@@ -17,7 +17,8 @@ from pathlib import Path
 import time
 from NeuralRewardMachines.RL.Env.Environment import GridWorldEnv
 from NeuralRewardMachines.utils.DirectoryManager import DirectoryManager
-from NeuralRewardMachines.LTL_tasks import formulas
+from NeuralRewardMachines.LTL_tasks import formulas, ltls
+from GridWorldEnvWrapper import GridWorldEnvWrapper
 
 dm = DirectoryManager()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -48,12 +49,21 @@ class ActorCritic(nn.Module):
                 dfa_dim = env.automaton.num_of_states
             else:
                 dfa_dim = 0
-            # Shared feature layers
-            self.shared = nn.Sequential(
+            # Actor layers
+            self.actor = nn.Sequential(
                 nn.Linear(cnn_out + dfa_dim, hidden),
                 nn.ReLU(),
                 nn.Linear(hidden, hidden),
                 nn.ReLU(),
+                nn.Linear(hidden, env.action_space.n)
+            )
+            # Critic layers
+            self.critic = nn.Sequential(
+                nn.Linear(cnn_out + dfa_dim, hidden),
+                nn.ReLU(),
+                nn.Linear(hidden, hidden),
+                nn.ReLU(),
+                nn.Linear(hidden, 1)
             )
         else:
             # symbolic: observation is a vector (e.g. x,y,dfa_state) or (x,y)
@@ -260,14 +270,6 @@ def train_ppo(env: GridWorldEnv, hidden=128,
     else:
         f_log= open(log_file, "w")
         f_log.write("episode,total_steps,episode_reward,episode_steps,done,truncated,average_reward,run\n")
-    # Write hyperparameters to file
-    hyperparameters_file = log_folder + f"parameters_PPO_{RUN}.txt"
-    with open(hyperparameters_file, "w") as f:
-        f.write(f"# Training parameters:\n")
-        f.write(f"# hidden layer size: {hidden}\n")
-        f.write(f"# training episodes: {episodes}, steps per rollout: {steps}, minibatch size: {minibatch_size}, epochs: {epochs}\n")
-        f.write(f"# gamma: {gamma}, gae_lambda: {gae_lambda}, clip_epsilon: {clip_epsilon}, lr: {lr}\n") 
-        f.write(f"# vf_coef: {vf_coef}, ent_coef: {ent_coef}, max_grad_norm: {max_grad_norm}\n")
     # Training loop
     episode = 0
     total_steps = 0
@@ -420,8 +422,10 @@ def set_seed(seed: int):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train PPO agent on GridWorld environment")
+    parser.add_argument("--image-state", action='store_true', help="Set state type to image")
     parser.add_argument("--formulas", type=int, default=10, help="Number of formulas to consider from LTL_tasks")
-    parser.add_argument("--no-automaton", type=bool, default=False, help="If set, do not use automaton states", action='store_true')
+    parser.add_argument("--no-automaton", action='store_true', help="If set, do not use automaton states")
+    parser.add_argument("--external-automaton", action='store_true', help="If set, use external automaton")
     parser.add_argument("--runs", type=int, default=3, help="Experiment runs per formula")
     parser.add_argument("--hidden", type=int, default=128, help="Hidden layer size for the model")
     parser.add_argument("--episodes", type=int, default=10_000, help="Number of episodes to train")
@@ -435,8 +439,12 @@ if __name__ == "__main__":
     parser.add_argument("--max_grad_norm", type=float, default=0.5, help="Maximum gradient norm for clipping")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     args = parser.parse_args()
+    state_type = "image" if args.image_state else "symbolic"
     n_formulas = args.formulas
     use_automaton = not args.no_automaton
+    external_automaton = args.external_automaton
+    if external_automaton:
+        use_automaton = True
     runs = args.runs
     hidden = args.hidden
     episodes = args.episodes
@@ -449,14 +457,28 @@ if __name__ == "__main__":
     ent_coef = args.ent_coef
     max_grad_norm = args.max_grad_norm
     seed = args.seed
+    # Log experiment parameters
+    with open(dm.get_experiment_folder() + "experiment_parameters.txt", "w") as f:
+        f.write(f"# Experiment parameters:\n")
+        f.write(f"# State type: {state_type}\n")
+        f.write(f"# Number of formulas: {n_formulas}\n")
+        f.write(f"# Use automaton states: {use_automaton}\n")
+        f.write(f"# Use external automaton: {external_automaton}\n")
+        f.write(f"# Runs per formula: {runs}\n")
+        f.write(f"# hidden layer size: {hidden}\n")
+        f.write(f"# training episodes: {episodes}, steps per rollout: {steps}, minibatch size: {minibatch_size}, epochs: {epochs}\n")
+        f.write(f"# clip_epsilon: {clip_epsilon}, lr: {lr}\n") 
+        f.write(f"# vf_coef: {vf_coef}, ent_coef: {ent_coef}, max_grad_norm: {max_grad_norm}\n")
+        f.write(f"# seed: {seed}\n")
     set_seed(seed)
     formulas = formulas[:n_formulas]
-    for formula in formulas:
+    for i in range(len(formulas)):
+        formula = formulas[i]
+        ltl = ltls[i]
         print(f"Running experiments for: {formula[2]}")
         dm.set_formula_name(formula[2].replace(" ", "_"))
         # Create environment
-        env = GridWorldEnv(formula=formula, use_dfa_states=use_automaton)
-        
+        env = GridWorldEnvWrapper(formula=formula, state_type=state_type, use_dfa_state=use_automaton, external_automaton=external_automaton, ltl=ltl)
         for r in range(runs):
             print(f" Experiment {r+1} / {runs}")
             RUN = r + 1
