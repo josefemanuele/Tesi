@@ -1,10 +1,9 @@
-## Solve Environment.
+''' Solve GridWorldEnv using DQN algorithm. '''
 import random
 import collections
 import argparse
 import math
 import csv
-
 import numpy as np
 import torch
 import torch.nn as nn
@@ -12,15 +11,12 @@ import torch.nn.functional as F
 import torch.optim as optim
 from pathlib import Path
 import matplotlib.pyplot as plt
-
-from RL.Env.Environment import GridWorldEnv
-from LTL_tasks import formulas
+from NeuralRewardMachines.RL.Env.Environment import GridWorldEnv
+from NeuralRewardMachines.LTL_tasks import formulas
 from utils.DirectoryManager import DirectoryManager
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 dm = DirectoryManager()
-
 RUN = 0
 max_steps = 50
 

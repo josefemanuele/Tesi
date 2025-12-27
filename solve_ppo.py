@@ -68,7 +68,7 @@ class ActorCritic(nn.Module):
             )
         else:
             # symbolic: observation is a vector (e.g. x,y,dfa_state) or (x,y)
-            obs_dim = env.state_space_size if isinstance(env.state_space_size, int) else int(np.prod(env.state_space_size))
+            obs_dim = env.state_space_size
             if self.use_dfa:
                 obs_dim += env.automaton.num_of_states
             # Actor network
