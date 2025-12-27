@@ -16,7 +16,8 @@ import seaborn
 from pathlib import Path
 import time
 from NeuralRewardMachines.RL.Env.Environment import GridWorldEnv
-from NeuralRewardMachines.utils.DirectoryManager import DirectoryManager
+from utils.DirectoryManager import DirectoryManager
+from utils.SlidingWindow import SlidingWindow
 from NeuralRewardMachines.LTL_tasks import formulas, ltls
 from GridWorldEnvWrapper import GridWorldEnvWrapper
 
@@ -49,7 +50,7 @@ class ActorCritic(nn.Module):
                 dfa_dim = env.automaton.num_of_states
             else:
                 dfa_dim = 0
-            # Actor layers
+            # Actor network
             self.actor = nn.Sequential(
                 nn.Linear(cnn_out + dfa_dim, hidden),
                 nn.ReLU(),
@@ -57,7 +58,7 @@ class ActorCritic(nn.Module):
                 nn.ReLU(),
                 nn.Linear(hidden, env.action_space.n)
             )
-            # Critic layers
+            # Critic network
             self.critic = nn.Sequential(
                 nn.Linear(cnn_out + dfa_dim, hidden),
                 nn.ReLU(),
@@ -70,7 +71,7 @@ class ActorCritic(nn.Module):
             obs_dim = env.state_space_size if isinstance(env.state_space_size, int) else int(np.prod(env.state_space_size))
             if self.use_dfa:
                 obs_dim += env.automaton.num_of_states
-            # Shared feature layers
+            # Actor network
             self.actor = nn.Sequential(
                 nn.Linear(obs_dim, hidden),
                 nn.ReLU(),
@@ -78,6 +79,7 @@ class ActorCritic(nn.Module):
                 nn.ReLU(),
                 nn.Linear(hidden, env.action_space.n)
             )
+            # Critic network
             self.critic = nn.Sequential(
                 nn.Linear(obs_dim, hidden),
                 nn.ReLU(),
@@ -230,20 +232,6 @@ def stack_states(states_list, env: GridWorldEnv):
             return torch.stack([s for s in states_list]).to(device)
     else:
         return torch.stack([s for s in states_list]).to(device)
-
-class SlidingWindow:
-    """Utility class for maintaining a sliding window of recent values."""
-    def __init__(self, size):
-        self.size = size
-        self.values = deque(maxlen=size)
-
-    def add(self, value):
-        self.values.append(value)
-
-    def average(self):
-        if len(self.values) == 0:
-            return 0.0
-        return sum(self.values) / len(self.values)
 
 def train_ppo(env: GridWorldEnv, hidden=128,
               episodes=10_000, steps=256, minibatch_size=64, epochs=4, 
