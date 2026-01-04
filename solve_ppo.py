@@ -14,7 +14,6 @@ from collections import deque
 import pandas
 import seaborn
 from pathlib import Path
-import time
 from NeuralRewardMachines.RL.Env.Environment import GridWorldEnv
 from utils.DirectoryManager import DirectoryManager
 from utils.SlidingWindow import SlidingWindow
@@ -410,12 +409,11 @@ def set_seed(seed: int):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train PPO agent on GridWorld environment.")
-    parser.add_argument("--image-state", action='store_true', help="Set state type to image")
     parser.add_argument("--formulas", type=int, default=10, help="Number of formulas to consider from LTL_tasks")
-    parser.add_argument("--no-automaton", action='store_true', help="If set, do not use automaton states")
     parser.add_argument("--external-automaton", action='store_true', help="If set, use external automaton")
+    parser.add_argument("--no-automaton", action='store_true', help="If set, do not use automaton states")
+    parser.add_argument("--image-state", action='store_true', help="Set state type to image")
     parser.add_argument("--runs", type=int, default=3, help="Experiment runs per formula")
-    parser.add_argument("--hidden", type=int, default=128, help="Hidden layer size for the model")
     parser.add_argument("--episodes", type=int, default=10_000, help="Number of episodes to train")
     parser.add_argument("--steps", type=int, default=256, help="Number of steps per rollout")
     parser.add_argument("--minibatch_size", type=int, default=64, help="Minibatch size for PPO updates")
@@ -425,16 +423,16 @@ if __name__ == "__main__":
     parser.add_argument("--vf_coef", type=float, default=0.5, help="Value function loss coefficient")
     parser.add_argument("--ent_coef", type=float, default=0.01, help="Entropy loss coefficient")
     parser.add_argument("--max_grad_norm", type=float, default=0.5, help="Maximum gradient norm for clipping")
+    parser.add_argument("--hidden", type=int, default=128, help="Hidden layer size for the model")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     args = parser.parse_args()
-    state_type = "image" if args.image_state else "symbolic"
     n_formulas = args.formulas
     use_automaton = not args.no_automaton
     external_automaton = args.external_automaton
     if external_automaton:
         use_automaton = True
+    state_type = "image" if args.image_state else "symbolic"
     runs = args.runs
-    hidden = args.hidden
     episodes = args.episodes
     steps = args.steps
     minibatch_size = args.minibatch_size
@@ -444,19 +442,20 @@ if __name__ == "__main__":
     vf_coef = args.vf_coef
     ent_coef = args.ent_coef
     max_grad_norm = args.max_grad_norm
+    hidden = args.hidden
     seed = args.seed
     # Log experiment parameters
     with open(dm.get_experiment_folder() + "experiment_parameters.txt", "w") as f:
         f.write(f"# Experiment parameters:\n")
-        f.write(f"# State type: {state_type}\n")
         f.write(f"# Number of formulas: {n_formulas}\n")
         f.write(f"# Use automaton states: {use_automaton}\n")
         f.write(f"# Use external automaton: {external_automaton}\n")
+        f.write(f"# State type: {state_type}\n")
         f.write(f"# Runs per formula: {runs}\n")
-        f.write(f"# hidden layer size: {hidden}\n")
-        f.write(f"# training episodes: {episodes}, steps per rollout: {steps}, minibatch size: {minibatch_size}, epochs: {epochs}\n")
-        f.write(f"# clip_epsilon: {clip_epsilon}, lr: {lr}\n") 
+        f.write(f"# Training episodes: {episodes}, steps per rollout: {steps}, minibatch size: {minibatch_size}\n")
+        f.write(f"# epochs: {epochs}, clip_epsilon: {clip_epsilon}, lr: {lr}\n") 
         f.write(f"# vf_coef: {vf_coef}, ent_coef: {ent_coef}, max_grad_norm: {max_grad_norm}\n")
+        f.write(f"# hidden layer size: {hidden}\n")
         f.write(f"# seed: {seed}\n")
     set_seed(seed)
     formulas = formulas[:n_formulas]
