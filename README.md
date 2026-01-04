@@ -7,25 +7,17 @@ full-fledged human-to-machine communication framework for expressing situations,
 # Roadmap
 The project work was structured in the following development steps:
 
-## Study GridWorld environment project ✅ ⭕
-
-## Study Lang2LTL translation project ✅ ⭕
-
-## Solve GridWorld environment with DDQN (reinforcement learning, off-policy training) ✅ ⭕
-
-## Solve GridWorld environment with PPO (reinforcement learning, on-policy training) ✅ ⭕
-
-## Solve GridWorld environment with visual input (computer vision) ✅ ⭕
-
-## Translate human language task into LTL (natural language processing) ✅ ⭕
-
-## Augment input data for NL to LTL translation (data augmentation) ⭕
-
-## Study translation precision and accuracy (statistical analysis) ⭕
-
-## Code external automaton wrapper for GridWorld environment ✅ 
-
-## Compare GridWorld environment solution between correct and translated LTL formulas (data visualization)✅ ⭕
+- Study GridWorld environment project ✅ ⭕
+- Study Lang2LTL translation project ✅ ⭕
+- Solve GridWorld environment with DDQN (reinforcement learning, off-policy training) ✅ ⭕
+- Solve GridWorld environment with PPO (reinforcement learning, on-policy training) ✅ ⭕
+- Solve GridWorld environment with visual input (computer vision) ✅ ⭕
+- Translate human language task into LTL (natural language processing) ✅ ⭕
+- Augment input data for NL to LTL translation (data augmentation) ⭕
+- Study translation precision and accuracy (statistical analysis) ⭕
+- Code external automaton wrapper for GridWorld environment ✅ 
+- Compare GridWorld environment solution between correct and translated LTL formulas (data visualization)✅ ⭕
+- Research about background, state of the art, and best practices. ⭕
 
 # Acknowledgements
 Advisor: Prof.ssa Elena Umili
