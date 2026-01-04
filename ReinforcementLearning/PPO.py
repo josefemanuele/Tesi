@@ -6,8 +6,6 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.distributions import Categorical
 from NeuralRewardMachines.RL.Env.Environment import GridWorldEnv
-from utils.DirectoryManager import DirectoryManager
-from utils.SlidingWindow import SlidingWindow
 
 class RolloutBuffer:
     """Buffer for storing rollout data during on-policy collection."""
@@ -231,8 +229,6 @@ def train_ppo(device, env: GridWorldEnv, hidden=128,
     # Start training loop
     episode = 0
     total_steps = 0
-    # TODO: Switch to Seaborn sliding window implementation
-    sw = SlidingWindow(size=100) # To calculate sliding window averaged value
     while episode < episodes:
         episode_length = 0
         episode_reward = 0.0
@@ -266,9 +262,8 @@ def train_ppo(device, env: GridWorldEnv, hidden=128,
             if done or truncated:
                 episode += 1
                 episode_rewards.append(episode_reward)
-                sw.add(episode_reward)
                 # Store episode data
-                data.append((episode, episode_reward, episode_length, done, truncated, total_steps, sw.average()))
+                data.append((episode, episode_reward, episode_length, done, truncated, total_steps))
                 # # If we've collected enough steps or reached episode limit, break to train
                 # if len(buffer) >= minibatch_size or episode >= episodes:
                 # #     print(f"Collected {len(buffer)} steps, proceeding to update.")
