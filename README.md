@@ -22,7 +22,7 @@ The project work was structured in the following development steps:
 # Acknowledgements
 Advisor: Prof.ssa Elena Umili
 
-Co-Advisor: Prof. Roberto Patrizi
+Co-Advisor: Prof. Fabio Patrizi
 
 Course: M.Sc. in Engineering in Computer Science
 
