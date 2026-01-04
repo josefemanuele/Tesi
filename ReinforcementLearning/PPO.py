@@ -9,6 +9,38 @@ from NeuralRewardMachines.RL.Env.Environment import GridWorldEnv
 from utils.DirectoryManager import DirectoryManager
 from utils.SlidingWindow import SlidingWindow
 
+class RolloutBuffer:
+    """Buffer for storing rollout data during on-policy collection."""
+    def __init__(self):
+        self.states = []
+        self.actions = []
+        self.rewards = []
+        self.log_probs = []
+        self.values = []
+        self.dones = []
+        self.truncateds = []
+
+    def push(self, state, action, reward, log_prob, value, done, truncated):
+        self.states.append(state)
+        self.actions.append(action)
+        self.rewards.append(reward)
+        self.log_probs.append(log_prob)
+        self.values.append(value)
+        self.dones.append(done)
+        self.truncateds.append(truncated)
+
+    def clear(self):
+        self.states = []
+        self.actions = []
+        self.rewards = []
+        self.log_probs = []
+        self.values = []
+        self.dones = []
+        self.truncateds = []
+
+    def __len__(self):
+        return len(self.rewards)
+
 class ActorCritic(nn.Module):
     """Actor-Critic network for PPO."""
     def __init__(self, env: GridWorldEnv, hidden=128):
@@ -153,38 +185,6 @@ def obs_to_state(obs, env: GridWorldEnv, device):
             else:
                 img_t = img.float()
             return img_t
-
-class RolloutBuffer:
-    """Buffer for storing rollout data during on-policy collection."""
-    def __init__(self):
-        self.states = []
-        self.actions = []
-        self.rewards = []
-        self.log_probs = []
-        self.values = []
-        self.dones = []
-        self.truncateds = []
-
-    def push(self, state, action, reward, log_prob, value, done, truncated):
-        self.states.append(state)
-        self.actions.append(action)
-        self.rewards.append(reward)
-        self.log_probs.append(log_prob)
-        self.values.append(value)
-        self.dones.append(done)
-        self.truncateds.append(truncated)
-
-    def clear(self):
-        self.states = []
-        self.actions = []
-        self.rewards = []
-        self.log_probs = []
-        self.values = []
-        self.dones = []
-        self.truncateds = []
-
-    def __len__(self):
-        return len(self.rewards)
 
 def compute_gae(rewards, values, dones, truncateds, next_value, gamma=0.99, gae_lambda=0.95):
     """Compute Generalized Advantage Estimation (GAE)."""
