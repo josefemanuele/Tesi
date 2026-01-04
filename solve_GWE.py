@@ -12,6 +12,7 @@ import random
 import numpy as np
 import torch
 import ReinforcementLearning.PPO as PPO
+import ReinforcementLearning.DDQN as DDQN
 
 dm = DirectoryManager()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -93,24 +94,24 @@ if __name__ == "__main__":
         for r in range(1, runs + 1):
             print(f"Experiment {r} / {runs}")
             if algorithm == "DDQN":
-                pass  # Placeholder for DDQN implementation
+                _, data = DDQN.train_ddqn(device=device, env=env, episodes=episodes, max_steps=steps)
             if algorithm == "PPO":
                 # Train PPO
                 _, data = PPO.train_ppo(device=device, env=env, hidden=hidden, episodes=episodes, steps=steps, minibatch_size=minibatch_size, 
                         epochs=epochs, clip_epsilon=clip_epsilon, lr=lr, vf_coef=vf_coef, 
                         ent_coef=ent_coef, max_grad_norm=max_grad_norm)
-                # Add run column to data
-                df = pandas.DataFrame(data, columns=["episode", "episode_reward", "episode_length", "done", "truncated", "total_steps", "avg_reward"])
-                df["run"] = r
-                dataframe = pandas.concat([dataframe, df], ignore_index=True)
+            # Add run column to data
+            df = pandas.DataFrame(data, columns=["episode", "episode_reward", "episode_length", "done", "truncated", "total_steps", "avg_reward"])
+            df["run"] = r
+            dataframe = pandas.concat([dataframe, df], ignore_index=True)
         # Plot learning curves
         print(f"Plotting learning curves for: {formula[2]}")
-        plt.title(f"PPO Learning Curve - {formula[2]}")
+        plt.title(f"{algorithm} Learning Curve - {formula[2]}")
         seaborn.relplot(data=dataframe, kind="line", x="episode", y="avg_reward")
-        plt.savefig(dm.get_plot_folder() + f"PPO_Learning_Curve.png")
+        plt.savefig(dm.get_plot_folder() + f"{algorithm}_Learning_Curve.png")
         plt.clf()
-        plt.title(f"PPO Learning Curve per run - {formula[2]}")
+        plt.title(f"{algorithm} Learning Curve per run - {formula[2]}")
         seaborn.relplot(data=dataframe, kind="line", x="episode", y="avg_reward", col="run", hue="run")
-        plt.savefig(dm.get_plot_folder() + f"PPO_Learning_Curve_per_run.png")
+        plt.savefig(dm.get_plot_folder() + f"{algorithm}_Learning_Curve_per_run.png")
         plt.clf()
         # TODO: Save dataframe to CSV (?)
