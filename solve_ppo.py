@@ -409,7 +409,7 @@ def set_seed(seed: int):
         torch.cuda.manual_seed_all(seed)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Train PPO agent on GridWorld environment")
+    parser = argparse.ArgumentParser(description="Train PPO agent on GridWorld environment.")
     parser.add_argument("--image-state", action='store_true', help="Set state type to image")
     parser.add_argument("--formulas", type=int, default=10, help="Number of formulas to consider from LTL_tasks")
     parser.add_argument("--no-automaton", action='store_true', help="If set, do not use automaton states")
