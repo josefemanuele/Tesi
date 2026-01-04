@@ -148,8 +148,6 @@ def train_ddqn(device, env: GridWorldEnv, episodes=10_000, max_steps=256,
     # Start training loop
     total_steps = 0
     eps_start, eps_end, eps_decay = 1.0, 0.05, 30000
-    # TODO: Implement window averaged reward
-    reward_sum = 0.0
     # TODO: Check early stop strategy
     early_stop = episodes / 5  # set early stop to 20% of episodes
     count = 0
@@ -210,13 +208,12 @@ def train_ddqn(device, env: GridWorldEnv, episodes=10_000, max_steps=256,
                 target.load_state_dict(online.state_dict())
             if terminal:
                 break
-        reward_sum += episode_reward
         # simple logging
         # if ep % logging_rate == 0:
         #     line = f"Episode {ep:4d} | steps {total_steps:6d} | steps/episode {total_steps/ep:4.2f} | reward {total_reward:5.2f} | reward/episode {reward_sum/ep:5.2f} | epsilon {eps_threshold:.3f} | buffer {len(buffer)}"
         #     print(line)
         # Early stopping if solved consistently
-        data.append((ep, episode_reward, step + 1, done, truncated, total_steps, reward_sum / ep))
+        data.append((ep, episode_reward, step + 1, done, truncated, total_steps))
         # Early stopping check
         count = count + 1 if done else 0
         if count >= early_stop:
