@@ -70,6 +70,7 @@ if __name__ == "__main__":
     # Log experiment parameters
     with open(dm.get_experiment_folder() + "experiment_parameters.txt", "w") as f:
         f.write(f"# Experiment parameters:\n")
+        f.write(f"# Algorithm: {algorithm}\n")
         f.write(f"# Number of formulas: {n_formulas}\n")
         f.write(f"# Use automaton states: {use_automaton}\n")
         f.write(f"# Use external automaton: {external_automaton}\n")
