@@ -76,10 +76,14 @@ class DQN(nn.Module):
         if self.state_type == "image":
             if isinstance(state, tuple) or isinstance(state, list):
                 dfa, img = state
-                img = img.float().unsqueeze(0)
+                img = img.float()
+                if img.dim() == 3:
+                    img = img.unsqueeze(0)
                 cnn_feat = self.cnn(img)
                 if dfa is not None:
-                    dfa = dfa.float().unsqueeze(0)
+                    dfa = dfa.float()
+                    if dfa.dim() == 1:
+                        dfa = dfa.unsqueeze(0)
                     x = torch.cat([cnn_feat, dfa], dim=1)
                 else:
                     x = cnn_feat
@@ -135,6 +139,18 @@ def obs_to_state(obs, env: GridWorldEnv, device):
                 img_t = img.float()
             return img_t
 
+def stack_states(states_list, env: GridWorldEnv, device):
+    """Stack list of states into batched tensors."""
+    if env.state_type == "image":
+        if env.use_dfa_state:
+            dfa_batch = torch.stack([s[0] for s in states_list]).to(device)
+            img_batch = torch.stack([s[1] for s in states_list]).to(device)
+            return (dfa_batch, img_batch)
+        else:
+            return torch.stack([s for s in states_list]).to(device)
+    else:
+        return torch.stack([s for s in states_list]).to(device)
+    
 def train_ddqn(device, env: GridWorldEnv, episodes=10_000, max_steps=256, 
           batch_size=64, buffer_capacity=20_000, gamma=0.99, lr=1e-4,
           start_train=1_000, target_update=1_000):
@@ -178,20 +194,8 @@ def train_ddqn(device, env: GridWorldEnv, episodes=10_000, max_steps=256,
             # optimize
             if len(buffer) >= max(64, start_train):
                 states_b, actions_b, rewards_b, next_states_b, dones_b = buffer.sample(batch_size)
-                # prepare tensors
-                def stack_states(s_list):
-                    # convert list of states (some are tuples for images) into batched tensors for forward
-                    if env.state_type == "image":
-                        if env.use_dfa_state:
-                            dfa_batch = torch.stack([s[0] for s in s_list]).to(device)
-                            img_batch = torch.stack([s[1] for s in s_list]).to(device)
-                            return (dfa_batch, img_batch)
-                        else:
-                            return torch.stack([s for s in s_list]).to(device)
-                    else:
-                        return torch.stack([s for s in s_list]).to(device)
-                states_t = stack_states(states_b)
-                next_states_t = stack_states(next_states_b)
+                states_t = stack_states(states_b, env, device)
+                next_states_t = stack_states(next_states_b, env, device)
                 actions_t = torch.tensor(actions_b, device=device, dtype=torch.long).unsqueeze(1)
                 rewards_t = torch.tensor(rewards_b, device=device, dtype=torch.float32).unsqueeze(1)
                 dones_t = torch.tensor(dones_b, device=device, dtype=torch.float32).unsqueeze(1)
