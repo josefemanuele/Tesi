@@ -11,11 +11,10 @@ from utils.SlidingWindow import SlidingWindow
 
 class ActorCritic(nn.Module):
     """Actor-Critic network for PPO."""
-    def __init__(self, env: GridWorldEnv, device, hidden=128):
+    def __init__(self, env: GridWorldEnv, hidden=128):
         super().__init__()
         self.state_type = env.state_type
         self.use_dfa = env.use_dfa_state
-        self.device = device
         if self.state_type == "image":
             # CNN to extract features from 3x64x64 images
             self.cnn = nn.Sequential(
@@ -82,12 +81,12 @@ class ActorCritic(nn.Module):
         if self.state_type == "image":
             if isinstance(state, tuple) or isinstance(state, list):
                 dfa, img = state
-                img = img.to(self.device).float()
+                img = img.float()
                 if img.dim() == 3:
                     img = img.unsqueeze(0)
                 cnn_feat = self.cnn(img)
                 if dfa is not None:
-                    dfa = dfa.to(self.device).float()
+                    dfa = dfa.float()
                     if dfa.dim() == 1:
                         dfa = dfa.unsqueeze(0)
                     x = torch.cat([cnn_feat, dfa], dim=1)
@@ -95,13 +94,13 @@ class ActorCritic(nn.Module):
                     x = cnn_feat
             else:
                 # just image tensor
-                img = state.to(self.device).float()
+                img = state.float()
                 if img.dim() == 3:
                     img = img.unsqueeze(0)
                 cnn_feat = self.cnn(img)
                 x = cnn_feat
         else:
-            x = state.to(self.device).float()
+            x = state.float()
             if x.dim() == 1:
                 x = x.unsqueeze(0)
         logits = self.actor(x)
@@ -225,7 +224,7 @@ def train_ppo(device, env: GridWorldEnv, hidden=128,
     """Train PPO agent in the given environment."""
     # TODO: Implement a better early stop strategy.
     # TODO: Handle data with Pandas dataframe.
-    model = ActorCritic(env, hidden=hidden, device=device).to(device)
+    model = ActorCritic(env, hidden=hidden).to(device)
     optimizer = optim.Adam(model.parameters(), lr=lr)
     buffer = RolloutBuffer()
     data = list()
