@@ -13,6 +13,7 @@ import numpy as np
 import torch
 import ReinforcementLearning.PPO as PPO
 import ReinforcementLearning.DDQN as DDQN
+from datetime import datetime
 
 dm = DirectoryManager()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -67,20 +68,22 @@ if __name__ == "__main__":
     max_grad_norm = args.max_grad_norm
     hidden = args.hidden
     seed = args.seed
+    start_time = datetime.now().strftime("%Y-%m-%d.%H:%M:%S")
     # Log experiment parameters
     with open(dm.get_experiment_folder() + "experiment_parameters.txt", "w") as f:
         f.write(f"# Experiment parameters:\n")
         f.write(f"# Algorithm: {algorithm}\n")
-        f.write(f"# Number of formulas: {n_formulas}\n")
+        f.write(f"# State type: {state_type}\n")
         f.write(f"# Use automaton states: {use_automaton}\n")
         f.write(f"# Use external automaton: {external_automaton}\n")
-        f.write(f"# State type: {state_type}\n")
+        f.write(f"# Number of formulas: {n_formulas}\n")
         f.write(f"# Runs per formula: {runs}\n")
         f.write(f"# Training episodes: {episodes}, steps per rollout: {steps}, minibatch size: {minibatch_size}\n")
         f.write(f"# epochs: {epochs}, clip_epsilon: {clip_epsilon}, lr: {lr}\n") 
         f.write(f"# vf_coef: {vf_coef}, ent_coef: {ent_coef}, max_grad_norm: {max_grad_norm}\n")
         f.write(f"# hidden layer size: {hidden}\n")
         f.write(f"# seed: {seed}\n")
+        f.write(f"# start_time: {start_time}\n")
     # TODO: Check seeding working properly
     set_seed(seed)
     formulas = formulas[:n_formulas]
@@ -120,3 +123,7 @@ if __name__ == "__main__":
         plt.savefig(dm.get_plot_folder() + f"{algorithm}_Learning_Curve_per_run.png")
         plt.clf()
         # TODO: Save dataframe to CSV (?)
+    # Log end time
+    end_time = datetime.now().strftime("%Y-%m-%d.%H:%M:%S")
+    with open(dm.get_experiment_folder() + "experiment_parameters.txt", "a") as f:
+        f.write(f"# end_time: {end_time}\n")
