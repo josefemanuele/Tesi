@@ -34,6 +34,7 @@ if __name__ == "__main__":
     parser.add_argument("--external-automaton", action='store_true', help="If set, use external automaton")
     parser.add_argument("--no-automaton", action='store_true', help="If set, do not use automaton states")
     parser.add_argument("--image-state", action='store_true', help="Set state type to image")
+    parser.add_argument("--render-mode", type=str, default="human", help="Set render mode")
     parser.add_argument("--runs", type=int, default=3, help="Experiment runs per formula")
     parser.add_argument("--episodes", type=int, default=10_000, help="Number of episodes to train")
     parser.add_argument("--steps", type=int, default=256, help="Number of steps per rollout")
@@ -56,6 +57,7 @@ if __name__ == "__main__":
     if external_automaton:
         use_automaton = True
     state_type = "image" if args.image_state else "symbolic"
+    render_mode = args.render_mode
     runs = args.runs
     episodes = args.episodes
     steps = args.steps
@@ -74,6 +76,7 @@ if __name__ == "__main__":
         f.write(f"# Experiment parameters:\n")
         f.write(f"# Algorithm: {algorithm}\n")
         f.write(f"# State type: {state_type}\n")
+        f.write(f"# Render mode: {render_mode}\n")
         f.write(f"# Use automaton states: {use_automaton}\n")
         f.write(f"# Use external automaton: {external_automaton}\n")
         f.write(f"# Number of formulas: {n_formulas}\n")
@@ -95,7 +98,7 @@ if __name__ == "__main__":
         # Dataframe collecting data from all runs
         dfs = list()
         # Create environment
-        env = GridWorldEnvWrapper(formula=formula, state_type=state_type, use_dfa_state=use_automaton, external_automaton=external_automaton, ltl=ltl)
+        env = GridWorldEnvWrapper(formula=formula, render_mode=render_mode, state_type=state_type, use_dfa_state=use_automaton, external_automaton=external_automaton, ltl=ltl)
         for r in range(1, runs + 1):
             print(f"Experiment {r} / {runs}")
             if algorithm == "DDQN":
@@ -117,11 +120,11 @@ if __name__ == "__main__":
         plt.title(f"{algorithm} Learning Curve - {formula[2]}")
         seaborn.relplot(data=dataframe, kind="line", x="episode", y="reward_rolling_avg")
         plt.savefig(dm.get_plot_folder() + f"{algorithm}_Learning_Curve.png")
-        plt.clf()
+        plt.close()
         plt.title(f"{algorithm} Learning Curve per run - {formula[2]}")
         seaborn.relplot(data=dataframe, kind="line", x="episode", y="reward_rolling_avg", col="run", hue="run")
         plt.savefig(dm.get_plot_folder() + f"{algorithm}_Learning_Curve_per_run.png")
-        plt.clf()
+        plt.close()
         # TODO: Save dataframe to CSV (?)
     # Log end time
     end_time = datetime.now().strftime("%Y-%m-%d.%H:%M:%S")

@@ -3,8 +3,8 @@ from NeuralRewardMachines.RL.Env.FiniteStateMachine import MooreMachine
 import numpy
 
 class GridWorldEnvWrapper(GridWorldEnv):
-    def __init__(self, formula, state_type="symbolic", use_dfa_state: bool = True, external_automaton: bool = False, ltl: str = None):
-        super().__init__(formula=formula, state_type=state_type, use_dfa_state=use_dfa_state)
+    def __init__(self, formula, render_mode="human", state_type="symbolic", use_dfa_state: bool = True, external_automaton: bool = False, ltl: str = None):
+        super().__init__(formula=formula, render_mode=render_mode, state_type=state_type, use_dfa_state=use_dfa_state)
         if external_automaton:
             self.external_automaton = MooreMachine(
                 ltl, self.formula[1], self.formula[2], dictionary_symbols=self.dictionary_symbols)
