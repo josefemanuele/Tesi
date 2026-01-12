@@ -5,8 +5,6 @@ from NeuralRewardMachines.LTL_tasks import formulas, utterances
 from NeuralRewardMachines.RL.Env.FiniteStateMachine import MooreMachine
 import json
 
-client = OpenAI()
-
 models = ['gpt-5.2', 'gpt-5', 'gpt-5-mini', 'gpt-5-nano']
 models = models[:]
 
@@ -87,7 +85,7 @@ def evaluate_models():
             with open(log, 'a') as f:
                 f.write(line + '\n')
 
-def data_augmentation(model='gpt-5.2', utterance="Visit the pickaxe and visit the lava."):
+def data_augmentation(client, model='gpt-5.2', utterance="Visit the pickaxe and visit the lava."):
     prompt = "You are given a natural language instruction for a task in a simulated environment. " \
     "Your goal is to generate ten different paraphrased versions of the instruction, " \
     "while preserving the original meaning. " \
@@ -104,7 +102,7 @@ def data_augmentation(model='gpt-5.2', utterance="Visit the pickaxe and visit th
     paraphrased = response.output_text.split('\n')
     return paraphrased
 
-def lang_to_ltl(model='gpt-5.2', utterance="Visit the pickaxe and visit the lava."):
+def lang_to_ltl(client, model='gpt-5.2', utterance="Visit the pickaxe and visit the lava."):
     prompt = "You are given a natural language instruction for a task in a simulated environment. " \
     "Your goal is to convert the instruction into a Linear Temporal Logic (LTL) formula. " \
     "Use & as AND operator, | as OR, > as implication, ! as NOT. Use F as finally temporal operator, " \
@@ -140,6 +138,7 @@ if __name__ == "__main__":
     parser.add_argument("--evaluate", default=False, help="Whether to evaluate equivalence of translated LTLs with correct LTL", action='store_true')
     args = parser.parse_args()
     if args.paraphrase or args.translate:
+        client = OpenAI()
         model = args.model
     if args.create_data:
         create_data()
@@ -149,7 +148,7 @@ if __name__ == "__main__":
         # Collect paraphrased utterances
         for d in data:
             utterance = d["utterance"]
-            paraphrased = data_augmentation(model=model, utterance=utterance)
+            paraphrased = data_augmentation(client=client, model=model, utterance=utterance)
             d["paraphrased_utterances"] = paraphrased
     if args.translate:
         # Translate paraphrased utterances
@@ -157,7 +156,7 @@ if __name__ == "__main__":
             paraphrased_utterances = d["paraphrased_utterances"]
             d["translated_ltls"] = []
             for p in paraphrased_utterances:
-                translated_ltl = lang_to_ltl(model=model, utterance=p)
+                translated_ltl = lang_to_ltl(client=client, model=model, utterance=p)
                 d["translated_ltls"].append(translated_ltl)
     if args.evaluate:
         # Evaluate equivalence of translated LTLs with correct LTL
