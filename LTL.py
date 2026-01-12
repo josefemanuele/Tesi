@@ -2,8 +2,9 @@ import argparse
 from openai import OpenAI
 import time
 from NeuralRewardMachines.LTL_tasks import formulas, utterances
-from NeuralRewardMachines.RL.Env.FiniteStateMachine import MooreMachine
+from DFA.DFA import DFA
 import json
+from datetime import datetime
 
 models = ['gpt-5.2', 'gpt-5', 'gpt-5-mini', 'gpt-5-nano']
 models = models[:]
@@ -121,9 +122,9 @@ def check_equivalence(ltl1, ltl2, num_symbols):
     # equivalence = spot.are_equivalent(ltl1, ltl2)
     # equivalence_formula = f"(({ltl1}) -> ({ltl2})) & (({ltl2}) -> ({ltl1}))"
     equivalence_formula = f"({ltl1}) <-> ({ltl2})"
-    equivalence_automaton = MooreMachine(arg1=equivalence_formula,
-                                        arg2=num_symbols, 
-                                        arg3="equivalence_check", 
+    equivalence_automaton = DFA(ltl_formula=equivalence_formula,
+                                        num_symbols=num_symbols, 
+                                        formula_name="equivalence_check", 
                                         dictionary_symbols=dictionary_symbols)
     # equivalence_automaton.write_dot_file(f"data/equivalence_check_{i}.dot")
     equivalence = (equivalence_automaton.num_of_states == 1 and equivalence_automaton.acceptance[0] == True)
@@ -137,6 +138,14 @@ if __name__ == "__main__":
     parser.add_argument("--translate", default=False, help="Whether to translate paraphrases to LTL", action='store_true')
     parser.add_argument("--evaluate", default=False, help="Whether to evaluate equivalence of translated LTLs with correct LTL", action='store_true')
     args = parser.parse_args()
+    with open('LTL_experiment.txt', 'w') as f:
+        f.write('# LTL Experiment Log\n')
+        f.write(f"Model: {args.model}\n")
+        f.write(f"Create data: {args.create_data}\n")
+        f.write(f"Paraphrase: {args.paraphrase}\n")
+        f.write(f"Translate: {args.translate}\n")
+        f.write(f"Evaluate: {args.evaluate}\n")
+        f.write(f"Experiment started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
     if args.paraphrase or args.translate:
         client = OpenAI()
         model = args.model
@@ -176,4 +185,6 @@ if __name__ == "__main__":
             d["paraphrased_success_rate"] = success_rate
     # Store data
     store_data()
+    with open('LTL_experiment.txt', 'a') as f:
+        f.write(f"Experiment ended at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
     
