@@ -1,0 +1,302 @@
+[
+    {
+        "formula": "(F c0) & (F c1)",
+        "num_symbols": 2,
+        "description": "task1: visit(pickaxe, lava)",
+        "utterance": "Visit the pickaxe and visit the lava.",
+        "paraphrased_utterances": [
+            "Go to the mining axe and head to the molten rock.  ",
+            "Walk over to the rock hammer and proceed to the magma.  ",
+            "Approach the ore tool and make your way to the lava pool.  ",
+            "Move toward the digger's axe and then to the molten lava.  ",
+            "Travel to the stone pick and then to the liquid fire.  ",
+            "Head over to the excavation tool and afterward reach the magma flow.  ",
+            "Make a stop at the mining pick and then arrive at the lava stream.  ",
+            "Navigate to the pick tool and then go to the molten magma.  ",
+            "Proceed to the ore picker and then to the lava field.  ",
+            "Get to the miner's pick and then to the hot magma."
+        ],
+        "translated_ltls": [
+            "F c0 & F c1",
+            "F c0 & F c1",
+            "F(c0 & F c1)",
+            "F(c0 & F c1)",
+            "F(c0 & F c1)",
+            "F(c0 & F c1)",
+            "F(c0 & F c1)",
+            "F(c0 & F c1)",
+            "F(c0 & F c1)",
+            "F(c0 & F c1)"
+        ]
+    },
+    {
+        "formula": "(F c0) & (F c1) & (F c2)",
+        "num_symbols": 3,
+        "description": "task2: visit(pickaxe, lava, door)",
+        "utterance": "Visit the pickaxe, the lava, and the door.",
+        "paraphrased_utterances": [
+            "Go to the mining tool, the molten rock, and the gateway.",
+            "Head over to the rock hammer, the magma pool, and the entrance.",
+            "Make your way to the digger axe, the lava flow, and the hatch.",
+            "Proceed toward the ore pick, the fiery magma, and the doorway.",
+            "Walk to the miner's pick, the lava pit, and the portal.",
+            "Travel to the excavation pick, the liquid fire, and the doorframe.",
+            "Move in the direction of the stone pick, the volcanic lava, and the entryway.",
+            "Approach the pick tool, the hot magma, and the access door.",
+            "Navigate to the ore tool, the lava stream, and the gate.",
+            "Step over to the digging pick, the glowing lava, and the threshold."
+        ],
+        "translated_ltls": [
+            "F(c0 & F(c1 & F(c2)))",
+            "F(c0 & F(c1 & F(c2)))",
+            "F(c0) & F(c1) & F(c2)",
+            "F (c0 & c1 & c2)",
+            "F c0 & F c1 & F c2",
+            "F c0 & F c1 & F c2",
+            "F(c0 & c1 & c2)",
+            "F(c0 & c1 & c2)",
+            "F c0 & F c1 & F c2",
+            "F(c0 & c1 & c2)"
+        ]
+    },
+    {
+        "formula": "F(c0 & F(c1))",
+        "num_symbols": 2,
+        "description": "task3: seq_visit(pickaxe, lava)",
+        "utterance": "First visit the pickaxe, then visit the lava.",
+        "paraphrased_utterances": [
+            "Start by going to the mining tool, then head to the molten rock.",
+            "Begin at the rock breaker, then proceed to the lava pool.",
+            "Go to the stone pick first, then move on to the magma.",
+            "Make your initial stop at the ore chipper, then continue to the lava.",
+            "First approach the digging pick, then travel to the molten lava.",
+            "Visit the mineral pick first, then walk over to the hot magma.",
+            "Head to the excavation pick to start, then go to the lava flow.",
+            "Begin by reaching the rock pick, then shift to the liquid fire.",
+            "First check in at the mining pick, then make your way to the magma pool.",
+            "Start with the ore pick, then proceed onward to the molten lava."
+        ],
+        "translated_ltls": [
+            "F(c0 & F c1)",
+            "F(c0 & F c1)",
+            "F(c0 & F(c1))",
+            "F(c0 & F c1)",
+            "F(c0 & F(c1))",
+            "F(c0 & F c1)",
+            "F(c0 & F(c1))",
+            "F(c0 & F(c1))",
+            "F(c0 & F c1)",
+            "F c0 & F (c0 & F c1)"
+        ]
+    },
+    {
+        "formula": "F(c0 & F(c1)) & F(c2 & F(c3))",
+        "num_symbols": 4,
+        "description": "task4: seq_visit(pickaxe, lava) + seq_visit(door, gem)",
+        "utterance": "First visit the pickaxe, then visit the lava. After that, first visit the door, then visit the gem.",
+        "paraphrased_utterances": [
+            "Head to the mining axe first, then go to the molten rock. Next, approach the gateway, and afterward reach the jewel.",
+            "Go to the rock breaker before the magma. Then proceed to the entrance, followed by the crystal.",
+            "Walk over to the ore pick first, then move to the hot lava flow. After that, make your way to the hatch, then to the gemstone.",
+            "Navigate to the stone tool initially, then continue to the lava pool. Afterwards, visit the portal and then the precious gem.",
+            "Stop by the digging pick at the start, then travel to the magma. Afterward, check the doorway and then the shiny jewel.",
+            "Make a trip to the miner's pick first, then proceed to the lava pit. Following that, step to the doorframe, then to the crystal shard.",
+            "Reach the rock pick to begin, then head toward the molten lava. After that, go to the door entrance, then go to the jewel stone.",
+            "Approach the pick tool first, then continue on to the lava. Then visit the door opening, and afterward visit the gem.",
+            "Go over to the pick for mining first, then move toward the magma pool. Next, head to the door, and then to the gemlike crystal.",
+            "Start by visiting the pickaxe tool, then visit the lava. After that, visit the door, then visit the glittering gem."
+        ],
+        "translated_ltls": [
+            "F(c0 & F(c1 & F(c2 & F(c3))))",
+            "F(c0 & F(c1)) & F(c1 & F(c2)) & F(c2 & F(c3))",
+            "F(c0 & F(c1 & F(c2 & F(c3))))",
+            "F(c0 & F(c1 & F(c2 & F(c3))))",
+            "F(c0 & F(c1 & F(c2 & F c3)))",
+            "F(c0 & F(c1 & F(c2 & F(c3))))",
+            "F(c0 & F(c1 & F(c2 & F c3)))",
+            "F(c0 & F(c1 & F(c2 & F(c3))))",
+            "F(c0 & F(c1 & F(c2 & F(c3))))",
+            "F(c0 & F(c1 & F(c2 & F(c3))))"
+        ]
+    },
+    {
+        "formula": "F(c0 & F(c1)) & (F c2)",
+        "num_symbols": 3,
+        "description": "task5: seq_visit(pickaxe, lava) + visit(door)",
+        "utterance": "First visit the pickaxe, then visit the lava. Also, visit the door.",
+        "paraphrased_utterances": [
+            "Go to the mining tool first, then head over to the molten rock; be sure to check in at the gateway as well.",
+            "Start by reaching the rock breaker, proceed to the magma next, and additionally stop by the entrance.",
+            "Begin with the ore digger, follow that by moving to the hot lava flow, and also make a trip to the doorway.",
+            "Make your first stop at the stone pick, then continue on to the lava pool; remember to pass by the door too.",
+            "Initially approach the pick tool, afterward travel to the molten lava, and also drop in at the door.",
+            "First locate the mining pick, next go toward the lava stream, and include a visit to the door as well.",
+            "Step over to the rock pick first, then proceed to the lava field, plus pay a call to the door.",
+            "Head to the ore pick initially, then continue to the lava pit, and make sure you also swing by the door.",
+            "Go and see the pickaxe tool first, then move on to the lava area; also take a stop at the door.",
+            "Pay a visit to the miner's pick first, then make your way to the lava; don't forget to visit the door too."
+        ],
+        "translated_ltls": [
+            "F(c0 & F(c1 & F c2))",
+            "F(c0 & F(c1 & F(c2)))",
+            "F(c0 & F(c1 & F(c2)))",
+            "F(c0 & F(c1)) & F(c2)",
+            "F(c0 & F(c1 & F(c2)))",
+            "F(c0 & F(c1 & F(c2)))",
+            "F(c0 & F(c1 & F(c2)))",
+            "F(c0 & F(c1 & F(c2)))",
+            "F(c0 & F(c1 & F(c2)))",
+            "F(c0 & F(c1)) & F(c2)"
+        ]
+    },
+    {
+        "formula": "F(c0 & F(c1)) & (F c2) & (F c3)",
+        "num_symbols": 4,
+        "description": "task6: seq_visit(pickaxe, lava) + visit(door, gem)",
+        "utterance": "First visit the pickaxe, then visit the lava. Also, visit the door and the gem.",
+        "paraphrased_utterances": [
+            "Start by going to the mining axe, then head over to the molten rock. In addition, check out the doorway and the jewel.",
+            "Begin with a stop at the rock hammer, then proceed to the lava pool. Also, make your way to the gate and the crystal.",
+            "Go first to the digger axe, then move on to the magma. Also, swing by the entrance and the gemstone.",
+            "Head initially toward the ore axe, then continue to the fiery lava. Also, drop in at the portal and the precious stone.",
+            "Make the pick tool your first destination, then travel to the hot lava. Also, stop at the doorframe and the gem stone.",
+            "Visit the stone axe before anything else, then advance to the magma flow. Also, pass by the doorway and the bright jewel.",
+            "Set off to the mining pick as your first point, then shift to the lava stream. Also, take a detour to the gate and the shiny crystal.",
+            "Approach the ore pick first, then proceed onward to the molten lava. Also, enter the doorway area and the sparkling gem.",
+            "Check the pick axe at the start, then continue to the magma pool. Also, locate the entrance door and the faceted jewel.",
+            "Find the mining tool first, then go next to the lava field. Also, visit the door entrance and the rare gemstone."
+        ],
+        "translated_ltls": [
+            "F(c0 & F(c1 & F(c2 & F(c3))))",
+            "F c0 & F c1 & F c2 & F c3 & G(c0 -> F c1)",
+            "F(c0 & F(c1 & F(c2 & F(c3))))",
+            "F c0 & F c1 & F c2 & F c3",
+            "F(c0) & (!c1 U c0) & F(c1) & F(c2) & F(c3)",
+            "F(c0 & (!c1 & !c2 & !c3) U c0) & F(c0 & F c1) & F c2 & F c3",
+            "F(c0 & F(c1)) & F(c2) & F(c3)",
+            "F(c0 & F(c1)) & F(c2) & F(c3)",
+            "c0 & F(c1 & F(c2 & F(c3)))",
+            "F(c0 & F(c1 & F(c2 & F(c3))))"
+        ]
+    },
+    {
+        "formula": "(F c0) & (F c1) & (G (! c2))",
+        "num_symbols": 3,
+        "description": "task7: visit(pickaxe, lava) + glob_av(door)",
+        "utterance": "Visit the pickaxe and the lava, always avoid the door.",
+        "paraphrased_utterances": [
+            "Go to the mining tool and the molten rock, continually steer clear of the doorway.",
+            "Head over to the rock hammer and the magma, and never approach the gate.",
+            "Approach the digger's pick and the lava flow, at all times keep away from the entrance.",
+            "Make your way to the ore pick and the molten lava, and consistently shun the doorframe.",
+            "Move toward the pick tool and the magma pool, while permanently avoiding the door.",
+            "Travel to the miner's pick and the hot magma, and at no point go near the portal.",
+            "Proceed to the excavation pick and the liquid fire, always keep clear of the door.",
+            "Walk to the stone pick and the molten magma, and constantly stay away from the gate.",
+            "Navigate to the digging pick and the lava pit, and under no circumstances get close to the doorway.",
+            "Go over to the quarry pick and the magma stream, and remain distant from the door at all times."
+        ],
+        "translated_ltls": [
+            "F(c0 & c1) & G(!c2)",
+            "F (c0 & c1) & G !c2",
+            "F(c0 & c1) & G(!c2)",
+            "F(c0 & F(c1)) & G(!c2)",
+            "F (c0 & c1) & G !c2",
+            "F(c0 & c1) & G(!c2)",
+            "F (c0 & c1) & G !c2",
+            "F(c0 & c1) & G(!c2)",
+            "F(c0) & F(c1) & G(!c2)",
+            "F(c0 & c1) & G(!c2)"
+        ]
+    },
+    {
+        "formula": "(F c0) & (F c1) & (G (! c2)) & (G(! c3))",
+        "num_symbols": 4,
+        "description": "task8: visit(pickaxe, lava) + glob_av(door) + glob_av(gem)",
+        "utterance": "Visit the pickaxe and the lava, always avoid the door and the gem.",
+        "paraphrased_utterances": [
+            "Go to the mining tool and the molten rock, consistently steer clear of the doorway and the jewel.",
+            "Head over to the rock pick and the magma, continually keep away from the entrance and the gemstone.",
+            "Approach the digger pick and the hot lava flow, at all times stay distant from the gate and the precious stone.",
+            "Make your way to the ore pick and the liquid fire, constantly shun the portal and the crystal.",
+            "Travel toward the stonebreaker pick and the fiery lava pool, perpetually avoid the hatch and the gemlet.",
+            "Move in the direction of the quarry pick and the searing magma, without exception dodge the threshold and the jewel stone.",
+            "Proceed to the miner's pick and the burning lava, all the time bypass the doorway and the glittering gem.",
+            "Go over to the rockhammer pick and the volcanic melt, unfailingly keep clear of the doorframe and the jewel shard.",
+            "Navigate to the excavation pick and the lava stream, continuously refrain from nearing the door and the gemstone.",
+            "Walk to the pick tool and the molten lava, under no circumstances get close to the door and the jewel."
+        ],
+        "translated_ltls": [
+            "F c0 & F c1 & G (!c2) & G (!c3)",
+            "F (c0 & c1) & G (!c2 & !c3)",
+            "F (c0 & c1) & G (!c2 & !c3)",
+            "F (c0 & c1) & G (!c2 & !c3)",
+            "F(c0 & c1) & G(!c2 & !c3)",
+            "F((c0 & c1) & G(!c2 & !c3))",
+            "F(c0 & c1) & G(!c2 & !c3)",
+            "F (c0 & c1) & G (!c2 & !c3)",
+            "F (c0 & c1) & G !(c2 | c3)",
+            "F(c0 & c1) & G(!c2 & !c3)"
+        ]
+    },
+    {
+        "formula": "F(c0 & F(c1)) & G (! c2)",
+        "num_symbols": 3,
+        "description": "task9: seq_visit(pickaxe, lava) + glob_av(door)",
+        "utterance": "First visit the pickaxe, then visit the lava. Always avoid the door.",
+        "paraphrased_utterances": [
+            "Start by going to the mining tool, then proceed to the molten rock. Keep away from the doorway at all times.",
+            "Head to the rock breaker first, then make your way to the magma. Do not go near the entrance door ever.",
+            "Go to the ore pick first, and afterward approach the lava pool. Steer clear of the door continuously.",
+            "Navigate to the digging pick to begin with, then move toward the fiery lava. Consistently shun the door.",
+            "Make your first stop at the miner's pick, then continue on to the hot magma. Never approach the door.",
+            "Begin by reaching the stone pick, then travel to the lava flow. Avoid the door no matter what.",
+            "At first, locate the excavation pick, then advance to the molten lava. Stay clear of the door the whole time.",
+            "Initially, visit the pick tool, then shift to the magma vent. Refrain from going by the door always.",
+            "First, approach the ore tool, then head over to the lava lake. Keep the door avoided throughout.",
+            "To start, go see the rock pick, then proceed to the magma pool. Under all circumstances, bypass the door."
+        ],
+        "translated_ltls": [
+            "F(c0 & F(c1)) & G(!c2)",
+            "F(c0 & F c1) & G !c2",
+            "F(c0 & F(c1)) & G(!c2)",
+            "F(c0 & F c1) & G(!c2)",
+            "F(c0 & F c1) & G !c2",
+            "F(c0 & F(c1)) & G(!c2)",
+            "F(c0 & F c1) & G !c2",
+            "F(c0 & F(c1)) & G(!c2)",
+            "F(c0 & F(c1)) & G(!c2)",
+            "F(c0 & F(c1)) & G(!c2)"
+        ]
+    },
+    {
+        "formula": "F(c0 & F(c1)) & G (! c2) & G(! c3)",
+        "num_symbols": 4,
+        "description": "task10: seq_visit(pickaxe, lava) + glob_av(door) + glob_av(gem)",
+        "utterance": "First visit the pickaxe, then visit the lava. Always avoid the door and the gem.",
+        "paraphrased_utterances": [
+            "Go to the mining axe before heading to the molten rock. Steer clear of the doorway and the jewel at all times.",
+            "Head over to the rock breaker first, then proceed to the magma. Continually keep away from the entrance and the crystal.",
+            "Approach the ore tool to start, and afterward travel to the molten pool. Constantly shun the gate and the gemstone.",
+            "Make your way to the digging axe initially, then move on to the lava flow. At every moment, evade the portal and the gem.",
+            "Reach the quarry axe first, then continue to the fiery melt. Never go near the doorframe or the jewel.",
+            "Stop by the stone pick first, then go on to the hot lava. Always keep your distance from the door and the precious stone.",
+            "Find the miner's pick to begin, then head toward the magma field. Under no circumstances approach the doorway or the gem.",
+            "Visit the ore pick first, then proceed to the lava pool. Be sure to avoid the door and the jewel the whole time.",
+            "Go see the mining pick first, then journey to the molten lava. Persistently stay away from the door and the gemstone.",
+            "Move to the rock pick at the start, then shift to the magma lake. Consistently dodge the door and the crystal."
+        ],
+        "translated_ltls": [
+            "F(c0 & F(c1)) & G(!c2 & !c3)",
+            "F(c0 & F c1) & G(!c2 & !c3)",
+            "F(c0 & F c1) & G(!c2 & !c3)",
+            "F(c0 & F c1) & G(!c2 & !c3)",
+            "F(c0 & F c1) & G(!c2) & G(!c3)",
+            "F(c0 & F c1) & G(!c2 & !c3)",
+            "F c0 & F c1 & G (!c2 & !c3)",
+            "F(c0) & (c0 > F(c1)) & G(!c2 & !c3)",
+            "F(c0 & F c1) & G(!c2 & !c3)",
+            "F(c0 & F(c1)) & G(!c2 & !c3)"
+        ]
+    }
+]
