@@ -139,8 +139,8 @@ if __name__ == "__main__":
     parser.add_argument("--translate", default=False, help="Whether to translate paraphrases to LTL", action='store_true')
     parser.add_argument("--evaluate", default=False, help="Whether to evaluate equivalence of translated LTLs with correct LTL", action='store_true')
     args = parser.parse_args()
-    # evaluate_models()
-    model = args.model
+    if args.paraphrase or args.translate:
+        model = args.model
     if args.create_data:
         create_data()
     else:
