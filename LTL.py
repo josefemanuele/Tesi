@@ -8,7 +8,6 @@ import json
 client = OpenAI()
 
 models = ['gpt-5.2', 'gpt-5', 'gpt-5-mini', 'gpt-5-nano']
-
 models = models[:]
 
 dictionary_symbols = ['P', 'L', 'D', 'G', 'E' ]
@@ -38,6 +37,7 @@ def store_data():
 
 def load_data():
     with open('data/LTLs.json', 'r') as f:
+        global data
         data = json.load(f)
 
 task = 'Transform the following natural language sentence into an Linear Temporal Logic task. ' \
@@ -120,22 +120,24 @@ def lang_to_ltl(model='gpt-5.2', utterance="Visit the pickaxe and visit the lava
     return ltl
 
 def check_equivalence(ltl1, ltl2, num_symbols):
+    # equivalence = spot.are_equivalent(ltl1, ltl2)
+    # equivalence_formula = f"(({ltl1}) -> ({ltl2})) & (({ltl2}) -> ({ltl1}))"
     equivalence_formula = f"({ltl1}) <-> ({ltl2})"
     equivalence_automaton = MooreMachine(arg1=equivalence_formula,
                                         arg2=num_symbols, 
                                         arg3="equivalence_check", 
                                         dictionary_symbols=dictionary_symbols)
     # equivalence_automaton.write_dot_file(f"data/equivalence_check_{i}.dot")
-    equivalence = (equivalence_automaton.num_of_states == 1)
+    equivalence = (equivalence_automaton.num_of_states == 1 and equivalence_automaton.acceptance[0] == True)
     return equivalence
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Handle LTL tasks with LLMs")
     parser.add_argument("--model", type=str, default='gpt-5.2', help="Language model to use")
-    parser.add_argument("--create-data", type=bool, default=False, help="Whether to recreate the data file")
-    parser.add_argument("--paraphrase", type=bool, default=False, help="Whether to generate paraphrases")
-    parser.add_argument("--translate", type=bool, default=False, help="Whether to translate paraphrases to LTL")
-    parser.add_argument("--evaluate", type=bool, default=False, help="Whether to evaluate equivalence of translated LTLs with correct LTL")
+    parser.add_argument("--create-data", default=False, help="Whether to recreate the data file", action='store_true')
+    parser.add_argument("--paraphrase", default=False, help="Whether to generate paraphrases", action='store_true')
+    parser.add_argument("--translate", default=False, help="Whether to translate paraphrases to LTL", action='store_true')
+    parser.add_argument("--evaluate", default=False, help="Whether to evaluate equivalence of translated LTLs with correct LTL", action='store_true')
     args = parser.parse_args()
     # evaluate_models()
     model = args.model
