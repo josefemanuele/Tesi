@@ -5,6 +5,7 @@ from NeuralRewardMachines.LTL_tasks import formulas, utterances
 from DFA.DFA import DFA
 import json
 from datetime import datetime
+from Lang2LTLWrapper import lang2ltl_translate
 
 models = ['gpt-5.2', 'gpt-5', 'gpt-5-mini', 'gpt-5-nano']
 models = models[:]
@@ -137,6 +138,7 @@ if __name__ == "__main__":
     parser.add_argument("--paraphrase", default=False, help="Whether to generate paraphrases", action='store_true')
     parser.add_argument("--translate", default=False, help="Whether to translate paraphrases to LTL", action='store_true')
     parser.add_argument("--evaluate", default=False, help="Whether to evaluate equivalence of translated LTLs with correct LTL", action='store_true')
+    parser.add_argument("--lang2ltl", default=False, help="Whether to translate utterances with Lang2LTL", action='store_true')
     args = parser.parse_args()
     with open('LTL_experiment.txt', 'w') as f:
         f.write('# LTL Experiment Log\n')
@@ -145,6 +147,7 @@ if __name__ == "__main__":
         f.write(f"Paraphrase: {args.paraphrase}\n")
         f.write(f"Translate: {args.translate}\n")
         f.write(f"Evaluate: {args.evaluate}\n")
+        f.write(f"Lang2LTL: {args.lang2ltl}\n")
         f.write(f"Experiment started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
     if args.paraphrase or args.translate:
         client = OpenAI()
@@ -183,6 +186,15 @@ if __name__ == "__main__":
             success_rate = success_count / total_count
             print(f"Paraphrase success rate for formula '{correct_ltl}': {success_rate:.2f}")
             d["paraphrased_success_rate"] = success_rate
+    if args.lang2ltl:
+        for d in data:
+            nl_utterances = d['natural_language_utterances']
+            ltls = []
+            for nlu in nl_utterances:
+                ltl = lang2ltl_translate(nlu)
+                ltls.append(ltl)
+                print(f'NL Utt: {nlu} > LTL: {ltl}')
+            d['lang2ltl_translations'] = ltls
     # Store data
     store_data()
     with open('LTL_experiment.txt', 'a') as f:
