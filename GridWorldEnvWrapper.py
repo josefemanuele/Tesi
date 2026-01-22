@@ -19,11 +19,11 @@ class GridWorldEnvWrapper(GridWorldEnv):
         return observation, reward, info
 
     def step(self, action):
-        if self.external_automaton:
-            sym = super()._current_symbol()
-            self.external_automaton_state = self.external_automaton.transitions[self.external_automaton_state][sym]
         observation, reward, done, truncated, info = super().step(action)
         if self.external_automaton:
+            # Update external automaton state
+            sym = super()._current_symbol()
+            self.external_automaton_state = self.external_automaton.transitions[self.external_automaton_state][sym]
             # Replace automaton state in observation
             observation = numpy.append(observation[:-1], [self.external_automaton_state])
         return observation, reward, done, truncated, info
