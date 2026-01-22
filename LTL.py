@@ -5,7 +5,7 @@ from NeuralRewardMachines.LTL_tasks import formulas, utterances
 from DFA.DFA import DFA
 import json
 from datetime import datetime
-from Lang2LTLWrapper import lang2ltl_translate
+from Lang2LTLWrapper import translate
 
 models = ['gpt-5.2', 'gpt-5', 'gpt-5-mini', 'gpt-5-nano']
 models = models[:]
@@ -13,6 +13,8 @@ models = models[:]
 dictionary_symbols = ['P', 'L', 'D', 'G', 'E' ]
 
 data = []
+
+data_path = 'data/Lang2LTL/LTLs.json'
 
 # Utterances corresponding to the formulas.
 utterances = []
@@ -32,11 +34,11 @@ def create_data():
         data.append({"formula": formula[0], "num_symbols": formula[1], "description": formula[2], "utterance": utterances[i]})
 
 def store_data():
-    with open('data/LTLs.json', 'w') as f:
+    with open(data_path, 'w') as f:
         json.dump(data, f, indent=4)
 
 def load_data():
-    with open('data/LTLs.json', 'r') as f:
+    with open(data_path, 'r') as f:
         global data
         data = json.load(f)
 
@@ -191,7 +193,7 @@ if __name__ == "__main__":
             nl_utterances = d['natural_language_utterances']
             ltls = []
             for nlu in nl_utterances:
-                ltl = lang2ltl_translate(nlu)
+                ltl = translate(nlu)
                 ltls.append(ltl)
                 print(f'NL Utt: {nlu} > LTL: {ltl}')
             d['lang2ltl_translations'] = ltls

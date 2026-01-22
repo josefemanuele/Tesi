@@ -1,16 +1,38 @@
 import logging
 from Lang2LTL.lang2ltl import lang2ltl
+from temporal_reasoning import parse
 from flloat.parser.ltlf import LTLfParser
+import sys
 
 # Set up logging to print INFO messages to the console
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 utt = "Visit the pickaxe and go to the lava."
+# lmk2sem = obj2sem
 obj2sem = {
-    "pickaxe": {},
-    "lava": {},
-    "door": {},
-    "gem": {}
+    "pickaxe": {"material": ["iron", "wood"], 
+            "type": "tool", 
+            "usage": "mining", 
+            "color": ["brown", "gray"],
+            "action": ["pick", "hit", "grab", "use"]
+        },
+    "lava": {"material": ["lava", "stone"], 
+            "type": "hazard", 
+            "color": ["red", "orange"], 
+            "state": "liquid",
+            "action": ["avoid", "step on" ]
+        },
+    "door": {"material": ["wood", "iron"], 
+            "type": "structure", 
+            "state": "closed", 
+            "action": ["open", "close", "enter", "exit"]
+        },
+    "gem": {"material": ["diamond", "ruby"], 
+            "type": "treasure", 
+            "color": ["blue", "red", "green", "yellow"], 
+            "value": "high", 
+            "action": ["collect", "pick up"]
+        }
 }
 keep_keys = ["pickaxe", "lava", "door", "gem"]
 
@@ -52,8 +74,9 @@ def prefixToInfix(prefix):
     infix = stack.pop()
     return infix
 
-def lang2ltl_translate(utt):
-    result = lang2ltl(utt, obj2sem, keep_keys)
+def translate(utt):
+    result = lang2ltl(utt, obj2sem, keep_keys, rer_prompt_fpath='data/Lang2LTL/RErecognition/rer_prompt_GWE.txt')
+    # result = parse(utt, obj2sem, keep_keys, rer_prompt_fpath='data/rer_prompt_GWE.txt')
     # print("LTL formula:", result)
     infix = prefixToInfix(result)
     # print(f'Infix: {infix}')
