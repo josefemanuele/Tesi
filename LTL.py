@@ -42,6 +42,9 @@ def load_data():
         global data
         data = json.load(f)
 
+def get_data():
+    return data
+
 task = 'Transform the following natural language sentence into an Linear Temporal Logic task. ' \
 'Use & as AND operator, | as OR, > as implication, ! as NOT. Use F as finally temporal operator, ' \
 'G as globally temporal operator. Use c0 as symbol for pickaxe, c1 as symbol for lava, c2 as symbol ' \
