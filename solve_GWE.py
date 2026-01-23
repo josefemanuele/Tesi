@@ -14,6 +14,7 @@ import torch
 import ReinforcementLearning.PPO as PPO
 import ReinforcementLearning.DDQN as DDQN
 from datetime import datetime
+import LTL
 
 dm = DirectoryManager()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -47,6 +48,7 @@ if __name__ == "__main__":
     parser.add_argument("--max_grad_norm", type=float, default=0.5, help="Maximum gradient norm for clipping")
     parser.add_argument("--hidden", type=int, default=128, help="Hidden layer size for the model")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--test-translations", action='store_true', help="Test translated LTL formulas")
     args = parser.parse_args()
     algorithm = args.algorithm
     if algorithm not in supported_algorithms:
@@ -70,6 +72,11 @@ if __name__ == "__main__":
     max_grad_norm = args.max_grad_norm
     hidden = args.hidden
     seed = args.seed
+    test_translations = args.test_translations
+    if test_translations:
+        runs = 1
+        external_automaton = True
+    # Log start time
     start_time = datetime.now().strftime("%Y-%m-%d.%H:%M:%S")
     # Log experiment parameters
     with open(dm.get_experiment_folder() + "experiment_parameters.txt", "w") as f:
@@ -86,43 +93,64 @@ if __name__ == "__main__":
         f.write(f"# vf_coef: {vf_coef}, ent_coef: {ent_coef}, max_grad_norm: {max_grad_norm}\n")
         f.write(f"# hidden layer size: {hidden}\n")
         f.write(f"# seed: {seed}\n")
+        f.write(f"# test_translations: {test_translations}\n")
         f.write(f"# start_time: {start_time}\n")
     # TODO: Check seeding working properly
     set_seed(seed)
-    formulas = formulas[:n_formulas]
-    for i in range(len(formulas)):
-        formula = formulas[i]
-        ltl = ltls[i]
-        dm.set_formula_name(formula[2].replace(" ", "_"))
-        print(f"Running experiments for: {formula[2]}")
+    # Load LTL formulas
+    LTL.load_data()
+    data = LTL.get_data()
+    for d in data:
+        formula = d['formula']
+        n_symbols = d['num_symbols']
+        description = d['description']
+        external_automaton_formula = formula
+        dm.set_formula_name(description.replace(" ", "_"))
+        print(f"Running experiments for: {description}")
         # Dataframe collecting data from all runs
         dfs = list()
-        # Create environment
-        env = GridWorldEnvWrapper(formula=formula, render_mode=render_mode, state_type=state_type, use_dfa_state=use_automaton, external_automaton=external_automaton, ltl=ltl)
-        for r in range(1, runs + 1):
-            print(f"Experiment {r} / {runs}")
-            if algorithm == "DDQN":
-                _, data = DDQN.train_ddqn(device=device, env=env, episodes=episodes, max_steps=steps)
-            if algorithm == "PPO":
-                # Train PPO
-                _, data = PPO.train_ppo(device=device, env=env, hidden=hidden, episodes=episodes, steps=steps, minibatch_size=minibatch_size, 
-                        epochs=epochs, clip_epsilon=clip_epsilon, lr=lr, vf_coef=vf_coef, 
-                        ent_coef=ent_coef, max_grad_norm=max_grad_norm)
-            # Add run column to data
-            df = pandas.DataFrame(data, columns=["episode", "episode_reward", "episode_length", "done", "truncated", "total_steps"])
-            df["reward_rolling_avg"] = df["episode_reward"].rolling(window=100, min_periods=1).mean()
-            df["run"] = r
-            dfs.append(df)
+        ltls = {formula}
+        if test_translations:
+            translated_ltls = d.get("lang2ltl_translations", [])
+            ltls = set(translated_ltls)
+            print(f"Testing translated LTL formulas: {list(enumerate(ltls))}")
+        for n_ltl, ltl in enumerate(ltls):
+            # Create environment
+            env = GridWorldEnvWrapper(
+                formula=(formula, n_symbols, description), 
+                render_mode=render_mode, 
+                state_type=state_type, 
+                use_dfa_state=use_automaton, 
+                external_automaton=external_automaton, 
+                external_automaton_formula=ltl
+                )
+            # List of external formulas / list of automatas / for loop iterating over code.
+            for r in range(1, runs + 1):
+                print(f"Experiment {r} / {runs}")
+                if algorithm == "DDQN":
+                    _, data = DDQN.train_ddqn(device=device, env=env, episodes=episodes, max_steps=steps)
+                if algorithm == "PPO":
+                    # Train PPO
+                    _, data = PPO.train_ppo(device=device, env=env, hidden=hidden, episodes=episodes, steps=steps, minibatch_size=minibatch_size, 
+                            epochs=epochs, clip_epsilon=clip_epsilon, lr=lr, vf_coef=vf_coef, 
+                            ent_coef=ent_coef, max_grad_norm=max_grad_norm)
+                # Add run column to data
+                df = pandas.DataFrame(data, columns=["episode", "episode_reward", "episode_length", "done", "truncated", "total_steps"])
+                df["reward_rolling_avg"] = df["episode_reward"].rolling(window=100, min_periods=1).mean()
+                df["run"] = r
+                df["n_ltl"] = n_ltl
+                dfs.append(df)
         # Concatenate dataframes from all runs
         dataframe = pandas.concat(dfs, ignore_index=True)
         # Plot learning curves
-        print(f"Plotting learning curves for: {formula[2]}")
-        plt.title(f"{algorithm} Learning Curve - {formula[2]}")
-        seaborn.relplot(data=dataframe, kind="line", x="episode", y="reward_rolling_avg")
+        differentiator = 'n_ltl' if test_translations else 'run'
+        print(f"Plotting learning curves for: {description}")
+        plt.title(f"{algorithm} Learning Curve - {description}")
+        seaborn.relplot(data=dataframe, kind="line", x="episode", y="reward_rolling_avg", hue=differentiator)
         plt.savefig(dm.get_plot_folder() + f"{algorithm}_Learning_Curve.png")
         plt.close()
-        plt.title(f"{algorithm} Learning Curve per run - {formula[2]}")
-        seaborn.relplot(data=dataframe, kind="line", x="episode", y="reward_rolling_avg", col="run", hue="run")
+        plt.title(f"{algorithm} Learning Curve per run - {description}")
+        seaborn.relplot(data=dataframe, kind="line", x="episode", y="reward_rolling_avg", col=differentiator, hue=differentiator)
         plt.savefig(dm.get_plot_folder() + f"{algorithm}_Learning_Curve_per_run.png")
         plt.close()
         # TODO: Save dataframe to CSV (?)
