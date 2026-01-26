@@ -100,7 +100,7 @@ if __name__ == "__main__":
     # Load LTL formulas
     LTL.load_data()
     data = LTL.get_data()
-    for d in data:
+    for d in data[:n_formulas]:
         formula = d['formula']
         n_symbols = d['num_symbols']
         description = d['description']
@@ -109,10 +109,10 @@ if __name__ == "__main__":
         print(f"Running experiments for: {description}")
         # Dataframe collecting data from all runs
         dfs = list()
-        ltls = {formula}
+        ltls = [formula]
         if test_translations:
             translated_ltls = d.get("lang2ltl_translations", [])
-            ltls = set(translated_ltls)
+            ltls.extend(set(translated_ltls))
             print(f"Testing translated LTL formulas: {list(enumerate(ltls))}")
         for n_ltl, ltl in enumerate(ltls):
             # Create environment
