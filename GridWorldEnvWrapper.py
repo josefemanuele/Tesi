@@ -16,6 +16,15 @@ class GridWorldEnvWrapper(GridWorldEnv):
         observation, reward, info = super().reset()
         if self.external_automaton:
             self.external_automaton_state = 0
+            # Update observation
+            if self.state_type == 'symbolic':
+                # Replace automaton state in observation
+                observation = numpy.append(observation[:-1], [self.external_automaton_state])
+            elif self.state_type == 'image':
+                one_hot_dfa_state = [0 for _ in range(self.external_automaton.num_of_states)]
+                one_hot_dfa_state[self.external_automaton_state] = 1
+                # Replace automaton state in observation tuple
+                observation = [one_hot_dfa_state, observation[1]]
         return observation, reward, info
 
     def step(self, action):
@@ -24,6 +33,7 @@ class GridWorldEnvWrapper(GridWorldEnv):
             # Update external automaton state
             sym = super()._current_symbol()
             self.external_automaton_state = self.external_automaton.transitions[self.external_automaton_state][sym]
+            # Update observation
             if self.state_type == 'symbolic':
                 # Replace automaton state in observation
                 observation = numpy.append(observation[:-1], [self.external_automaton_state])
