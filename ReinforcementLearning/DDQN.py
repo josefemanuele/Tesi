@@ -29,7 +29,7 @@ class DQN(nn.Module):
         super().__init__()
         self.state_type = env.state_type
         self.use_dfa = env.use_dfa_state
-
+        automaton = env.external_automaton if env.external_automaton else env.automaton
         if self.state_type == "image":
             # small CNN to extract features from 3x64x64 images
             self.cnn = nn.Sequential(
@@ -46,7 +46,7 @@ class DQN(nn.Module):
                 dummy = torch.zeros(1, 3, 64, 64)
                 cnn_out = self.cnn(dummy).shape[1]
             if self.use_dfa:
-                dfa_dim = env.automaton.num_of_states
+                dfa_dim = automaton.num_of_states
             else:
                 dfa_dim = 0
             self.fc = nn.Sequential(
@@ -60,7 +60,7 @@ class DQN(nn.Module):
             # symbolic: observation is a vector (e.g. x,y,dfa_state) or (x,y) + dfa
             obs_dim = env.state_space_size if isinstance(env.state_space_size, int) else int(np.prod(env.state_space_size))
             if self.use_dfa:
-                obs_dim += env.automaton.num_of_states
+                obs_dim += automaton.num_of_states
             self.fc = nn.Sequential(
                 nn.Linear(obs_dim, hidden),
                 nn.ReLU(),
@@ -100,6 +100,7 @@ class DQN(nn.Module):
             return self.fc(x)
 
 def obs_to_state(obs, env: GridWorldEnv, device):
+    automaton = env.external_automaton if env.external_automaton else env.automaton
     # normalize/convert observation to tensors in the shape expected by DQN.forward
     if env.state_type == "symbolic":
         # If using DFA state we expect obs to contain the symbolic state and a one-hot/dfa part,
@@ -110,7 +111,7 @@ def obs_to_state(obs, env: GridWorldEnv, device):
             pos_dim = env.state_space_size
             pos = arr[:pos_dim].astype(np.float32)
             idx = int(arr[pos_dim])
-            one_hot = np.zeros(env.automaton.num_of_states, dtype=np.float32)
+            one_hot = np.zeros(automaton.num_of_states, dtype=np.float32)
             one_hot[idx] = 1.0
             state_vec = np.concatenate([pos, one_hot]).astype(np.float32)
             return torch.as_tensor(state_vec, dtype=torch.float32, device=device)
