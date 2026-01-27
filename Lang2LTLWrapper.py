@@ -1,6 +1,6 @@
 import logging
 from Lang2LTL.lang2ltl import lang2ltl
-from temporal_reasoning import parse
+# from temporal_reasoning import parse
 from flloat.parser.ltlf import LTLfParser
 import sys
 
