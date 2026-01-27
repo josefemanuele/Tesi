@@ -3,8 +3,8 @@ from NeuralRewardMachines.RL.Env.FiniteStateMachine import DFA
 import numpy
 
 class GridWorldEnvWrapper(GridWorldEnv):
-    def __init__(self, formula, render_mode="human", state_type="symbolic", use_dfa_state: bool = True, external_automaton: bool = False, external_automaton_formula: str = None, load_image_pkl: bool = False):
-        super().__init__(formula=formula, render_mode=render_mode, state_type=state_type, use_dfa_state=use_dfa_state, load_image_pkl=load_image_pkl)
+    def __init__(self, formula, render_mode="human", state_type="symbolic", use_dfa_state: bool = True, external_automaton: bool = False, external_automaton_formula: str = None, recompute_image_pkl: bool = False):
+        super().__init__(formula=formula, render_mode=render_mode, state_type=state_type, use_dfa_state=use_dfa_state, recompute_image_pkl=recompute_image_pkl)
         if external_automaton:
             self.external_automaton = DFA(
                 external_automaton_formula, self.formula[1], self.formula[2], dictionary_symbols=self.dictionary_symbols)
