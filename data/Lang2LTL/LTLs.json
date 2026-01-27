@@ -16,6 +16,18 @@
             "Proceed to the ore picker and then to the lava field.  ",
             "Get to the miner's pick and then to the hot magma."
         ],
+        "natural_language_utterances": [
+            "Visit the pick and the lava.",
+            "Pick the pickaxe and go to the lava.",
+            "Take the pickaxe and dip into the lava.",
+            "Go to the pickaxe and visit the lava.",
+            "Pick up the pick and touch the lava.",
+            "Grab the pick and go to the lava.",
+            "Pick the pick and the lava, in any order.",
+            "Grab the pick and the lava, in any order.",
+            "In any order, go to the pick and the lava.",
+            "Visit the pick and the lava."
+        ],
         "translated_ltls": [
             "F c0 & F c1",
             "F c0 & F c1",
@@ -27,6 +39,18 @@
             "F(c0 & F c1)",
             "F(c0 & F c1)",
             "F(c0 & F c1)"
+        ],
+        "lang2ltl_translations": [
+            "((F pickaxe) & (F lava))",
+            "(F (pickaxe & (F lava)))",
+            "(F (pickaxe & (F lava)))",
+            "((F pickaxe) & (F lava))",
+            "(F (pickaxe & (F lava)))",
+            "(F (pickaxe & (F lava)))",
+            "((F pickaxe) & (F lava))",
+            "((F pickaxe) & (F lava))",
+            "((F pickaxe) & (F lava))",
+            "((F pickaxe) & (F lava))"
         ]
     },
     {
@@ -34,17 +58,17 @@
         "num_symbols": 3,
         "description": "task2: visit(pickaxe, lava, door)",
         "utterance": "Visit the pickaxe, the lava, and the door.",
-        "paraphrased_utterances": [
-            "Go to the mining tool, the molten rock, and the gateway.",
-            "Head over to the rock hammer, the magma pool, and the entrance.",
-            "Make your way to the digger axe, the lava flow, and the hatch.",
-            "Proceed toward the ore pick, the fiery magma, and the doorway.",
-            "Walk to the miner's pick, the lava pit, and the portal.",
-            "Travel to the excavation pick, the liquid fire, and the doorframe.",
-            "Move in the direction of the stone pick, the volcanic lava, and the entryway.",
-            "Approach the pick tool, the hot magma, and the access door.",
-            "Navigate to the ore tool, the lava stream, and the gate.",
-            "Step over to the digging pick, the glowing lava, and the threshold."
+        "natural_language_utterances": [
+            "In any order, visit the pickaxe, the lava, and the door.",
+            "Visit the pickaxe, the lava, and the door.",
+            "Visit the pickaxe, the lava, and the door, with no required order.",
+            "Go to the pick, the lava, and the door.",
+            "Grab the pick, go to the lava, and exit, in no particular order.",
+            "In nay order, visit the lava, the pick, and the exit.",
+            "Make sure to have visited the door, the lava, and the pick at least once.",
+            "Walk to the pick, the lava, and exit, in any order.",
+            "Without emposing any ordering, visit the lava, the pick, and the exit.",
+            "Perform an unordered visit to the lava, the pick, and the door."
         ],
         "translated_ltls": [
             "F(c0 & F(c1 & F(c2)))",
@@ -57,6 +81,18 @@
             "F(c0 & c1 & c2)",
             "F c0 & F c1 & F c2",
             "F(c0 & c1 & c2)"
+        ],
+        "lang2ltl_translations": [
+            "(((F pickaxe) & ((F lava) & (F door))) | ((F lava) & (F door)))",
+            "((F pickaxe) & ((F lava) & (F door)))",
+            "((F pickaxe) & ((F lava) & (F door)))",
+            "((F pickaxe) & ((F lava) & (F door)))",
+            "((F lava) & ((F door) & (F pickaxe)))",
+            "((F (lava & (F (pickaxe & (F door))))) | ((! lava) | (G (lava | (G ((! lava) | (G (lava | (G (! lava))))))))))",
+            "((F door) & ((F lava) & (F pickaxe)))",
+            "((F pickaxe) & ((F lava) & (F door)))",
+            "((G (F lava)) & ((G (F pickaxe)) & (G (F door))))",
+            "((F lava) & ((F pickaxe) & (F door)))"
         ]
     },
     {
@@ -76,6 +112,18 @@
             "First check in at the mining pick, then make your way to the magma pool.",
             "Start with the ore pick, then proceed onward to the molten lava."
         ],
+        "natural_language_utterances": [
+            "Visit the pickaxe, then the lava.",
+            "Begin visiting the pickaxe, then the lava",
+            "Visit first the pickaxe, then the lava.",
+            "Make your initial stop at the pickaxe, then continue to the lava.",
+            "First approach the pickaxe, then walk onver to the lava.",
+            "Visit the pickaxe first, then the lava.",
+            "Visti the lava, only after having picked the pick.",
+            "Go to the lava, only after having visited the pickaxe.",
+            "Visit the pickaxe. Finally, visit the lava.",
+            "Start with the pick, proceed with the lava."
+        ],
         "translated_ltls": [
             "F(c0 & F c1)",
             "F(c0 & F c1)",
@@ -87,13 +135,25 @@
             "F(c0 & F(c1))",
             "F(c0 & F c1)",
             "F c0 & F (c0 & F c1)"
+        ],
+        "lang2ltl_translations": [
+            "(F (pickaxe & (F lava)))",
+            "(F (pickaxe & (F lava)))",
+            "(F (pickaxe & (F lava)))",
+            "(F (pickaxe & (F lava)))",
+            "(F (pickaxe & (F lava)))",
+            "(F (pickaxe & (F lava)))",
+            "(((! lava) U pickaxe) & (F lava))",
+            "(((! lava) U pickaxe) & (F lava))",
+            "(F (pickaxe & (F lava)))",
+            "(F (pickaxe & (F lava)))"
         ]
     },
     {
         "formula": "F(c0 & F(c1)) & F(c2 & F(c3))",
         "num_symbols": 4,
         "description": "task4: seq_visit(pickaxe, lava) + seq_visit(door, gem)",
-        "utterance": "First visit the pickaxe, then visit the lava. After that, first visit the door, then visit the gem.",
+        "utterance": "Visit the pickaxe, then the lava. Also, visit the door, then the gem.",
         "paraphrased_utterances": [
             "Head to the mining axe first, then go to the molten rock. Next, approach the gateway, and afterward reach the jewel.",
             "Go to the rock breaker before the magma. Then proceed to the entrance, followed by the crystal.",
@@ -106,6 +166,18 @@
             "Go over to the pick for mining first, then move toward the magma pool. Next, head to the door, and then to the gemlike crystal.",
             "Start by visiting the pickaxe tool, then visit the lava. After that, visit the door, then visit the glittering gem."
         ],
+        "natural_language_utterances": [
+            "Visit the pickaxe, then the lava. Also, visit the door, then the gem.",
+            "Visit in this order the pick and the lava. Make sure to also visit in this order the door and the gem.",
+            "Make these two sequential visit in any order. First, pickaxe and lava. Then, door and gem.",
+            "Visit first the pickaxe, then the lava. Also, visit first the door, then the gem.",
+            "Visit the pick, then the lava. Also, in any order relative to the first two visits, visit first the door, then the gem.",
+            "Visit the pick then the lava. And visit the door, then the gem.",
+            "Visit the lava after the pick. Visit the gem after the door.",
+            "Visit the lava afer having grabbed the pick. Grab the gem after having exited.",
+            "Exit then grab the gem. Grab the pick then pick the lava.",
+            "Pick the gem after having exited. Dip into the lava after having collected the gem."
+        ],
         "translated_ltls": [
             "F(c0 & F(c1 & F(c2 & F(c3))))",
             "F(c0 & F(c1)) & F(c1 & F(c2)) & F(c2 & F(c3))",
@@ -117,6 +189,18 @@
             "F(c0 & F(c1 & F(c2 & F(c3))))",
             "F(c0 & F(c1 & F(c2 & F(c3))))",
             "F(c0 & F(c1 & F(c2 & F(c3))))"
+        ],
+        "lang2ltl_translations": [
+            "(F (pickaxe & (F lava)))",
+            "(((! pickaxe) U pickaxe) & (((! lava) U door) & (F lava)))",
+            "((F (pickaxe & (F (lava & (F (door & (F gem))))))) & ((! pickaxe) | (G (pickaxe | (G ((! pickaxe) | (G (pickaxe | (G (! pickaxe))))))))))",
+            "(F (pickaxe & (F (lava & (F (door & (F gem)))))))",
+            "((F (pickaxe & (F lava))) | ((F door) & (F gem)))",
+            "(F (pickaxe & (F (lava & (F (door & (F gem)))))))",
+            "(F (pickaxe & (F (lava & (F gem)))))",
+            "(F (lava & (F (door & (F gem)))))",
+            "(F (door & (F (gem & (F (pickaxe & (F lava)))))))",
+            "(F (door & (F (gem & (F lava)))))"
         ]
     },
     {
@@ -136,6 +220,18 @@
             "Go and see the pickaxe tool first, then move on to the lava area; also take a stop at the door.",
             "Pay a visit to the miner's pick first, then make your way to the lava; don't forget to visit the door too."
         ],
+        "natural_language_utterances": [
+            "First visit the pickaxe, then visit the lava. Also, visit the door.",
+            "Pick the pick, then pick the lava. Also, visit the door.",
+            "Pick the pick, then pick the lava. Exit.",
+            "Exit. Grab the pick, then visit the lava.",
+            "Go to the lava after having grabbed the pick. Also, make sure to exit eventually.",
+            "Evantually exit and grab the lava only after having grabbed the pick.",
+            "In any order, exit, and grab the lava after having grabbed the pick.",
+            "Visit the lava afer having grabbed the pick. Exit.",
+            "Visit the lava afer having grabbed the pick. Exit, withouth any implicit ordering.",
+            "Pick the lava after having the pick. Exit at any time."
+        ],
         "translated_ltls": [
             "F(c0 & F(c1 & F c2))",
             "F(c0 & F(c1 & F(c2)))",
@@ -147,6 +243,18 @@
             "F(c0 & F(c1 & F(c2)))",
             "F(c0 & F(c1 & F(c2)))",
             "F(c0 & F(c1)) & F(c2)"
+        ],
+        "lang2ltl_translations": [
+            "((F (pickaxe & (F (lava & (F door))))) | ((F lava) & (F pickaxe)))",
+            "((F (pickaxe & (F lava))) & (F door))",
+            "(F (pickaxe & (F (lava & (F door)))))",
+            "(F (pickaxe & (F lava)))",
+            "(F (pickaxe & (F lava)))",
+            "(((! lava) U pickaxe) & (F door))",
+            "((F (door & (F lava))) | ((! pickaxe) | (G (pickaxe | (G ((! pickaxe) | (G (pickaxe | (G (! lava))))))))))",
+            "(((! door) U pickaxe) & (((! lava) U door) & (F lava)))",
+            "(((! door) U pickaxe) & (((! lava) U door) & (F lava)))",
+            "(G (pickaxe -> (X lava)))"
         ]
     },
     {
@@ -166,6 +274,18 @@
             "Check the pick axe at the start, then continue to the magma pool. Also, locate the entrance door and the faceted jewel.",
             "Find the mining tool first, then go next to the lava field. Also, visit the door entrance and the rare gemstone."
         ],
+        "natural_language_utterances": [
+            "First visit the pickaxe, then visit the lava. Also, visit the door and the gem.",
+            "Visit the pick, the the lava. Also visit the door and the gem.",
+            "Pick the pick, then pick the lava. In any order visit the exit and the gem.",
+            "Pick the pick, then the lava. In any order exit and pick the gem.",
+            "Pick the pick, then the lava. Exit and pick the gem.",
+            "Pick the gem, exit. Pick the pickaxe, only then the lava.",
+            "Perform a sequential visit to the pick and the lava. Visit also door and gem.",
+            "Perform a sequential visit to the pick and the lava. make sure to also visit the exit and the gem.",
+            "Visit door, gem and the lava, only after having grabbed the pick.",
+            "Visit door, agem, and pick the lava after picking the pick."
+        ],
         "translated_ltls": [
             "F(c0 & F(c1 & F(c2 & F(c3))))",
             "F c0 & F c1 & F c2 & F c3 & G(c0 -> F c1)",
@@ -177,6 +297,18 @@
             "F(c0 & F(c1)) & F(c2) & F(c3)",
             "c0 & F(c1 & F(c2 & F(c3)))",
             "F(c0 & F(c1 & F(c2 & F(c3))))"
+        ],
+        "lang2ltl_translations": [
+            "((F (pickaxe & (F lava))) | ((F door) & (F gem)))",
+            "((F pickaxe) & (F lava))",
+            "((F (pickaxe & (F lava))) & ((F door) & (F gem)))",
+            "((F pickaxe) & (F lava))",
+            "(F (pickaxe & (F (lava & (F gem)))))",
+            "(((! gem) U pickaxe) & (((! door) U gem) & (F door)))",
+            "(F (door & (F (pickaxe & (F lava)))))",
+            "(F (door & (F (pickaxe & (F lava)))))",
+            "(((! gem) U door) & (((! lava) U gem) & (F lava)))",
+            "(F (pickaxe & (F (door & (F (gem & (F lava)))))))"
         ]
     },
     {
@@ -196,6 +328,18 @@
             "Navigate to the digging pick and the lava pit, and under no circumstances get close to the doorway.",
             "Go over to the quarry pick and the magma stream, and remain distant from the door at all times."
         ],
+        "natural_language_utterances": [
+            "Visit the pickaxe and the lava. Always avoid the door.",
+            "Visit the pick and the lava. Do not exit.",
+            "Pick the pick, then pick the lava. Never exit.",
+            "Don't exit. Pick the pick and the lava.",
+            "In any order pick the pick and the lava. Avoid the door.",
+            "Avoid the door. Pick the pick, and the lava.",
+            "Perform a sequential visit to the pick and the lava. Don't exit",
+            "Perform a sequential visit to the pick and the lava. Make sure to not visit the exit.",
+            "Visit the lava and the pick. Exit never.",
+            "Always avoid the exit. Visit the pick and the lava."
+        ],
         "translated_ltls": [
             "F(c0 & c1) & G(!c2)",
             "F (c0 & c1) & G !c2",
@@ -207,6 +351,18 @@
             "F(c0 & c1) & G(!c2)",
             "F(c0) & F(c1) & G(!c2)",
             "F(c0 & c1) & G(!c2)"
+        ],
+        "lang2ltl_translations": [
+            "((G (! pickaxe)) & (G (! lava)))",
+            "((G (! pickaxe)) & (G (! lava)))",
+            "(((! pickaxe) U pickaxe) & (((! lava) U door) & (F lava)))",
+            "((G (! pickaxe)) & (G (! lava)))",
+            "((F pickaxe) & ((F pickaxe) & (F lava)))",
+            "((G (! door)) & ((G (! pickaxe)) & (G (! lava))))",
+            "((F door) & (F (pickaxe & (F lava))))",
+            "((F door) & (F (pickaxe & (F lava))))",
+            "((G (! lava)) & ((G (! pickaxe)) & (G (! door))))",
+            "((G (! door)) & ((G (! pickaxe)) & (G (! lava))))"
         ]
     },
     {
@@ -226,6 +382,18 @@
             "Navigate to the excavation pick and the lava stream, continuously refrain from nearing the door and the gemstone.",
             "Walk to the pick tool and the molten lava, under no circumstances get close to the door and the jewel."
         ],
+        "natural_language_utterances": [
+            "Visit the pickaxe and the lava. Always avoid the door and the gem.",
+            "Visit the pick and the lava. Do not exit. Do not grab the gem.",
+            "Pick the pick, then pick the lava. Never exit. Avoid gem.",
+            "Don't exit. Pick the pick and the lava. Don't gem.",
+            "In any order pick the pick and the lava. Avoid the door. Avoid gem.",
+            "Avoid the door. Pick the pick, and the lava. Don't visit the gem.",
+            "Perform a visit to the pick and the lava. Don't exit, nor gem.",
+            "Perform an unordered visit to the pick and the lava. Make sure to not visit the exit, nor the gem.",
+            "Visit the lava and the pick. Exit never. Gem ever.",
+            "Always avoid the exit and the gem. Visit the pick and the lava."
+        ],
         "translated_ltls": [
             "F c0 & F c1 & G (!c2) & G (!c3)",
             "F (c0 & c1) & G (!c2 & !c3)",
@@ -237,6 +405,18 @@
             "F (c0 & c1) & G (!c2 & !c3)",
             "F (c0 & c1) & G !(c2 | c3)",
             "F(c0 & c1) & G(!c2 & !c3)"
+        ],
+        "lang2ltl_translations": [
+            "((G (! pickaxe)) & (G (! lava)))",
+            "(((! lava) U pickaxe) & (((! door) U lava) & (F door)))",
+            "(((! pickaxe) U pickaxe) & (((! lava) U door) & (F gem)))",
+            "((G (! door)) & ((G (! pickaxe)) & (G (! lava))))",
+            "(((F pickaxe) & ((F lava) & ((F door) & (F gem)))) | ((! pickaxe) | (G (pickaxe | (G ((! pickaxe) | (G (pickaxe | (G (! pickaxe))))))))))",
+            "((G (! door)) & ((G (! pickaxe)) & (G (! lava))))",
+            "((F pickaxe) & ((F lava) & (F door)))",
+            "((F pickaxe) & (F lava))",
+            "((G (! lava)) & ((G (! pickaxe)) & ((G (! door)) & (G (! gem)))))",
+            "((G (! door)) & (G (! gem)))"
         ]
     },
     {
@@ -256,6 +436,18 @@
             "First, approach the ore tool, then head over to the lava lake. Keep the door avoided throughout.",
             "To start, go see the rock pick, then proceed to the magma pool. Under all circumstances, bypass the door."
         ],
+        "natural_language_utterances": [
+            "Visit the pickaxe, then the lava. Always avoid the door.",
+            "First visit the pick, then the lava. Do not exit.",
+            "Pick the pick, then pick the lava. Never exit.",
+            "Don't exit. Pick the pick and then lava.",
+            "Pick the pick and then lava. Avoid the door.",
+            "Avoid the door. Pick the pick, and then lava.",
+            "Perform a sequential visit to the pick and the lava. Don't exit",
+            "Perform a sequential visit to the pick and the lava. Make sure to not visit the exit.",
+            "Visit the lava after the pick. Exit never.",
+            "Always avoid the exit. Visit the pick and then lava."
+        ],
         "translated_ltls": [
             "F(c0 & F(c1)) & G(!c2)",
             "F(c0 & F c1) & G !c2",
@@ -267,6 +459,18 @@
             "F(c0 & F(c1)) & G(!c2)",
             "F(c0 & F(c1)) & G(!c2)",
             "F(c0 & F(c1)) & G(!c2)"
+        ],
+        "lang2ltl_translations": [
+            "(((! lava) U pickaxe) & (F lava))",
+            "(((! lava) U pickaxe) & (F lava))",
+            "(((! pickaxe) U pickaxe) & (((! lava) U door) & (F lava)))",
+            "((G (! door)) | (F (pickaxe & (F lava))))",
+            "(((! lava) U pickaxe) & (F lava))",
+            "((G (! door)) & (F (pickaxe & (F lava))))",
+            "((F door) & (F (pickaxe & (F lava))))",
+            "((F door) & (F (pickaxe & (F lava))))",
+            "(G (pickaxe -> (X (G (! lava)))))",
+            "((G (! door)) | (F (pickaxe & (F lava))))"
         ]
     },
     {
@@ -286,6 +490,18 @@
             "Go see the mining pick first, then journey to the molten lava. Persistently stay away from the door and the gemstone.",
             "Move to the rock pick at the start, then shift to the magma lake. Consistently dodge the door and the crystal."
         ],
+        "natural_language_utterances": [
+            "Visit the pickaxe and then the lava. Always avoid the door and the gem.",
+            "Visit the pick and then lava. Do not exit. Do not grab the gem.",
+            "Pick the pick, then pick the lava. Never exit. Avoid gem.",
+            "Don't exit. Pick the pick and then the lava. Don't gem.",
+            "Visit the lava after the pick. Avoid the door. Avoid the gem.",
+            "Perform a sequential visit to the pick and the lava. Avoid always the gem and the door.",
+            "Perform an ordered visit to the pick and the lava. Don't exit, nor gem.",
+            "Perform a sequential visit to the pick and the lava. Make sure to not visit the exit, nor the gem.",
+            "Visit the lava and then the pick. Exit never. Gem ever.",
+            "Always avoid the exit and the gem. Visit the pick first and the lava then."
+        ],
         "translated_ltls": [
             "F(c0 & F(c1)) & G(!c2 & !c3)",
             "F(c0 & F c1) & G(!c2 & !c3)",
@@ -297,6 +513,18 @@
             "F(c0) & (c0 > F(c1)) & G(!c2 & !c3)",
             "F(c0 & F c1) & G(!c2 & !c3)",
             "F(c0 & F(c1)) & G(!c2 & !c3)"
+        ],
+        "lang2ltl_translations": [
+            "(((! door) U pickaxe) & (((! gem) U door) & (F gem)))",
+            "(((! lava) U pickaxe) & (F lava))",
+            "(((! pickaxe) U pickaxe) & (((! lava) U door) & (F gem)))",
+            "(((! lava) U pickaxe) & (F lava))",
+            "(G (pickaxe -> (X (G (! door)))))",
+            "((F (door & (F (pickaxe & (F lava))))) & ((G (! gem)) & (G (! door))))",
+            "((F pickaxe) & (F lava))",
+            "((F (door & (F (pickaxe & (F lava))))) & ((G (! door)) & (G (! gem))))",
+            "((G (! lava)) & ((G (! pickaxe)) & ((G (! door)) & (G (! gem)))))",
+            "((G (! door)) & (G (! gem)))"
         ]
     }
 ]
