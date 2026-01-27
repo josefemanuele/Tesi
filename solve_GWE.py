@@ -49,6 +49,7 @@ if __name__ == "__main__":
     parser.add_argument("--hidden", type=int, default=128, help="Hidden layer size for the model")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     parser.add_argument("--test-translations", action='store_true', help="Test translated LTL formulas")
+    parser.add_argument("--load-image-pkl", action='store_true', help="Load preprocessed image pickle for image states")
     args = parser.parse_args()
     algorithm = args.algorithm
     if algorithm not in supported_algorithms:
@@ -59,6 +60,7 @@ if __name__ == "__main__":
     if external_automaton:
         use_automaton = True
     state_type = "image" if args.image_state else "symbolic"
+    load_image_pkl = args.load_image_pkl
     render_mode = args.render_mode
     runs = args.runs
     episodes = args.episodes
@@ -83,6 +85,7 @@ if __name__ == "__main__":
         f.write(f"# Experiment parameters:\n")
         f.write(f"# Algorithm: {algorithm}\n")
         f.write(f"# State type: {state_type}\n")
+        f.write(f"# Load image pkl: {load_image_pkl}\n")
         f.write(f"# Render mode: {render_mode}\n")
         f.write(f"# Use automaton states: {use_automaton}\n")
         f.write(f"# Use external automaton: {external_automaton}\n")
@@ -122,7 +125,8 @@ if __name__ == "__main__":
                 state_type=state_type, 
                 use_dfa_state=use_automaton, 
                 external_automaton=external_automaton, 
-                external_automaton_formula=ltl
+                external_automaton_formula=ltl,
+                load_image_pkl=load_image_pkl
                 )
             # List of external formulas / list of automatas / for loop iterating over code.
             for r in range(1, runs + 1):
