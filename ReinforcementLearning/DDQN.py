@@ -166,8 +166,8 @@ def train_ddqn(device, env: GridWorldEnv, episodes=10_000, max_steps=256,
     total_steps = 0
     eps_start, eps_end, eps_decay = 1.0, 0.05, 30000
     # TODO: Check early stop strategy
-    early_stop = episodes / 5  # set early stop to 20% of episodes
-    count = 0
+    # early_stop = episodes / 5  # set early stop to 20% of episodes
+    # count = 0
     # logging_rate = int(episodes / 20) # log every 5% of episodes
     for ep in range(1, episodes + 1):
         obs, _, _ = env.reset()
@@ -219,9 +219,9 @@ def train_ddqn(device, env: GridWorldEnv, episodes=10_000, max_steps=256,
         #     print(line)
         # Early stopping if solved consistently
         data.append((ep, episode_reward, step + 1, done, truncated, total_steps))
-        # Early stopping check
-        count = count + 1 if done else 0
-        if count >= early_stop:
-            print(f"Early stopping as agent consistently solved the environment in the last {count} episodes.")
-            break
+        # # Early stopping check
+        # count = count + 1 if done else 0
+        # if count >= early_stop:
+        #     print(f"Early stopping as agent consistently solved the environment in the last {count} episodes.")
+        #     break
     return online, data
