@@ -44,6 +44,11 @@ class DirectoryManager:
         formula_names = [p.name for p in exp_path.iterdir() if p.is_dir()]
         return formula_names
 
+    def get_formula_folder(self) -> str:
+        """Get the formula folder path and ensure it exists."""
+        Path(self.task_folder).mkdir(parents=True, exist_ok=True)
+        return self.task_folder
+
     def get_model_folder(self) -> str:
         """Get the model folder path and ensure it exists."""
         model_folder = self.task_folder + "model/"
@@ -52,7 +57,7 @@ class DirectoryManager:
     
     def get_models(self) -> list:
         """Get list of model files for set formula name."""
-        model_folder = self.task_folder + "/model/"
+        model_folder = self.get_model_folder()
         model_path = Path(model_folder)
         if not model_path.exists():
             return []
