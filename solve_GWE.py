@@ -151,13 +151,14 @@ if __name__ == "__main__":
         print(f"Plotting learning curves for: {description}")
         plt.title(f"{algorithm} Learning Curve - {description}")
         seaborn.relplot(data=dataframe, kind="line", x="episode", y="reward_rolling_avg", hue=differentiator)
-        plt.savefig(dm.get_plot_folder() + f"{algorithm}_Learning_Curve.png")
+        plt.savefig(dm.get_formula_folder() + f"{algorithm}_Learning_Curve.png")
         plt.close()
         plt.title(f"{algorithm} Learning Curve per run - {description}")
         seaborn.relplot(data=dataframe, kind="line", x="episode", y="reward_rolling_avg", col=differentiator, hue=differentiator)
-        plt.savefig(dm.get_plot_folder() + f"{algorithm}_Learning_Curve_per_run.png")
+        plt.savefig(dm.get_formula_folder() + f"{algorithm}_Learning_Curve_per_run.png")
         plt.close()
-        # TODO: Save dataframe to CSV (?)
+        # Save dataframe to CSV
+        dataframe.to_csv(dm.get_formula_folder() + f"{algorithm}_Training_data.csv", index=False)
     # Log end time
     end_time = datetime.now().strftime("%Y-%m-%d.%H:%M:%S")
     with open(dm.get_experiment_folder() + "experiment_parameters.txt", "a") as f:
