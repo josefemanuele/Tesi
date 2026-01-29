@@ -126,7 +126,9 @@ def lang_to_ltl(client, model='gpt-5.2', utterance="Visit the pickaxe and visit 
     return ltl
 
 def check_equivalence(ltl1, ltl2, num_symbols):
-    equivalence = spot.are_equivalent(ltl1, ltl2)
+    f1 = spot.formula(ltl1)
+    f2 = spot.formula(ltl2)
+    equivalence = spot.are_equivalent(f1, f2)
     # equivalence_formula = f"(({ltl1}) -> ({ltl2})) & (({ltl2}) -> ({ltl1}))"
     # equivalence_formula = f"({ltl1}) <-> ({ltl2})"
     # equivalence_automaton = DFA(ltl_formula=equivalence_formula,
