@@ -6,6 +6,7 @@ from DFA.DFA import DFA
 import json
 from datetime import datetime
 from Lang2LTLWrapper import translate
+import spot
 
 models = ['gpt-5.2', 'gpt-5', 'gpt-5-mini', 'gpt-5-nano']
 models = models[:]
@@ -125,15 +126,15 @@ def lang_to_ltl(client, model='gpt-5.2', utterance="Visit the pickaxe and visit 
     return ltl
 
 def check_equivalence(ltl1, ltl2, num_symbols):
-    # equivalence = spot.are_equivalent(ltl1, ltl2)
+    equivalence = spot.are_equivalent(ltl1, ltl2)
     # equivalence_formula = f"(({ltl1}) -> ({ltl2})) & (({ltl2}) -> ({ltl1}))"
-    equivalence_formula = f"({ltl1}) <-> ({ltl2})"
-    equivalence_automaton = DFA(ltl_formula=equivalence_formula,
-                                        num_symbols=num_symbols, 
-                                        formula_name="equivalence_check", 
-                                        dictionary_symbols=dictionary_symbols)
-    # equivalence_automaton.write_dot_file(f"data/equivalence_check_{i}.dot")
-    equivalence = (equivalence_automaton.num_of_states == 1 and equivalence_automaton.acceptance[0] == True)
+    # equivalence_formula = f"({ltl1}) <-> ({ltl2})"
+    # equivalence_automaton = DFA(ltl_formula=equivalence_formula,
+    #                                     num_symbols=num_symbols, 
+    #                                     formula_name="equivalence_check", 
+    #                                     dictionary_symbols=dictionary_symbols)
+    # # equivalence_automaton.write_dot_file(f"data/equivalence_check_{i}.dot")
+    # equivalence = (equivalence_automaton.num_of_states == 1 and equivalence_automaton.acceptance[0] == True)
     return equivalence
 
 if __name__ == "__main__":
@@ -190,7 +191,7 @@ if __name__ == "__main__":
                     success_count += 1
             success_rate = success_count / total_count
             print(f"Paraphrase success rate for formula '{correct_ltl}': {success_rate:.2f}")
-            d["paraphrased_success_rate"] = success_rate
+            d["paraphrased_success_rate_spot"] = success_rate
     if args.lang2ltl:
         for d in data:
             nl_utterances = d['natural_language_utterances']
