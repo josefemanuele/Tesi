@@ -176,14 +176,14 @@ def obs_to_state(obs, env: GridWorldEnv, device):
             if not torch.is_tensor(img):
                 img_t = torch.tensor(np.array(img).astype(np.float32), device=device)
             else:
-                img_t = img.float()
+                img_t = img.float().to(device)
             return (one_hot_t, img_t)
         else:
             img = obs
             if not torch.is_tensor(img):
                 img_t = torch.tensor(np.array(img).astype(np.float32), device=device)
             else:
-                img_t = img.float()
+                img_t = img.float().to(device)
             return img_t
 
 def compute_gae(rewards, values, dones, truncateds, next_value, gamma=0.99, gae_lambda=0.95):
