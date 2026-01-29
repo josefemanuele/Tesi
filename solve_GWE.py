@@ -18,6 +18,7 @@ import LTL
 
 dm = DirectoryManager()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Using device: {device}")
 supported_algorithms = ["DDQN", "PPO"]
 
 def set_seed(seed: int):
@@ -83,6 +84,7 @@ if __name__ == "__main__":
     # Log experiment parameters
     with open(dm.get_experiment_folder() + "experiment_parameters.txt", "w") as f:
         f.write(f"# Experiment parameters:\n")
+        f.write(f'# Device: {device}\n')
         f.write(f"# Algorithm: {algorithm}\n")
         f.write(f"# State type: {state_type}\n")
         f.write(f"# Recompute image pkl: {recompute_image_pkl}\n")
