@@ -118,26 +118,26 @@ def obs_to_state(obs, env: GridWorldEnv, device):
         else:
             # simple numeric/vector observation
             if isinstance(obs, np.ndarray):
-                return torch.from_numpy(obs.astype(np.float32))
+                return torch.from_numpy(obs.astype(np.float32)).to(device)
             else:
-                return torch.tensor(np.array(obs).astype(np.float32))
+                return torch.tensor(np.array(obs).astype(np.float32), device=device)
     else:
         # image mode: reset/step return either image only or [one_hot, image_tensor]
         if env.use_dfa_state:
             one_hot = obs[0]
             img = obs[1]
-            one_hot_t = torch.tensor(np.array(one_hot).astype(np.float32))
+            one_hot_t = torch.tensor(np.array(one_hot).astype(np.float32), device=device)
             if not torch.is_tensor(img):
-                img_t = torch.tensor(np.array(img).astype(np.float32))
+                img_t = torch.tensor(np.array(img).astype(np.float32), device=device)
             else:
-                img_t = img.float()
+                img_t = img.float().to(device) 
             return (one_hot_t, img_t)
         else:
             img = obs
             if not torch.is_tensor(img):
-                img_t = torch.tensor(np.array(img).astype(np.float32))
+                img_t = torch.tensor(np.array(img).astype(np.float32), device=device)
             else:
-                img_t = img.float()
+                img_t = img.float().to(device)
             return img_t
 
 def stack_states(states_list, env: GridWorldEnv, device):
