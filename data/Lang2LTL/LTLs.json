@@ -3,6 +3,7 @@
         "formula": "(F c0) & (F c1)",
         "num_symbols": 2,
         "description": "task1: visit(pickaxe, lava)",
+        "name": "task1",
         "utterance": "Visit the pickaxe and visit the lava.",
         "paraphrased_utterances": [
             "Go to the mining axe and head to the molten rock.  ",
@@ -51,12 +52,29 @@
             "((F pickaxe) & (F lava))",
             "((F pickaxe) & (F lava))",
             "((F pickaxe) & (F lava))"
+        ],
+        "paraphrased_success_rate_spot": 0.2,
+        "symbolic_lang2ltl_translations": [
+            "((F c0) & (F c1))",
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "((F c0) & (F c1))",
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))"
+        ],
+        "filtered_symbolic_lang2ltl_translations": [
+            "(F (c0 & (F c1)))"
         ]
     },
     {
         "formula": "(F c0) & (F c1) & (F c2)",
         "num_symbols": 3,
         "description": "task2: visit(pickaxe, lava, door)",
+        "name": "task2",
         "utterance": "Visit the pickaxe, the lava, and the door.",
         "natural_language_utterances": [
             "In any order, visit the pickaxe, the lava, and the door.",
@@ -93,12 +111,31 @@
             "((F pickaxe) & ((F lava) & (F door)))",
             "((G (F lava)) & ((G (F pickaxe)) & (G (F door))))",
             "((F lava) & ((F pickaxe) & (F door)))"
+        ],
+        "paraphrased_success_rate_spot": 0.4,
+        "symbolic_lang2ltl_translations": [
+            "(((F c0) & ((F c1) & (F c2))) | ((F c1) & (F c2)))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((F c1) & ((F c2) & (F c0)))",
+            "((F (c1 & (F (c0 & (F c2))))) | ((! c1) | (G (c1 | (G ((! c1) | (G (c1 | (G (! c1))))))))))",
+            "((F c2) & ((F c1) & (F c0)))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((G (F c1)) & ((G (F c0)) & (G (F c2))))",
+            "((F c1) & ((F c0) & (F c2)))"
+        ],
+        "filtered_symbolic_lang2ltl_translations": [
+            "(((F c0) & ((F c1) & (F c2))) | ((F c1) & (F c2)))",
+            "((F (c1 & (F (c0 & (F c2))))) | ((! c1) | (G (c1 | (G ((! c1) | (G (c1 | (G (! c1))))))))))",
+            "((G (F c1)) & ((G (F c0)) & (G (F c2))))"
         ]
     },
     {
         "formula": "F(c0 & F(c1))",
         "num_symbols": 2,
         "description": "task3: seq_visit(pickaxe, lava)",
+        "name": "task3",
         "utterance": "First visit the pickaxe, then visit the lava.",
         "paraphrased_utterances": [
             "Start by going to the mining tool, then head to the molten rock.",
@@ -147,12 +184,29 @@
             "(((! lava) U pickaxe) & (F lava))",
             "(F (pickaxe & (F lava)))",
             "(F (pickaxe & (F lava)))"
+        ],
+        "paraphrased_success_rate_spot": 1.0,
+        "symbolic_lang2ltl_translations": [
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "(((! c1) U c0) & (F c1))",
+            "(((! c1) U c0) & (F c1))",
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))"
+        ],
+        "filtered_symbolic_lang2ltl_translations": [
+            "(((! c1) U c0) & (F c1))"
         ]
     },
     {
         "formula": "F(c0 & F(c1)) & F(c2 & F(c3))",
         "num_symbols": 4,
         "description": "task4: seq_visit(pickaxe, lava) + seq_visit(door, gem)",
+        "name": "task4",
         "utterance": "Visit the pickaxe, then the lava. Also, visit the door, then the gem.",
         "paraphrased_utterances": [
             "Head to the mining axe first, then go to the molten rock. Next, approach the gateway, and afterward reach the jewel.",
@@ -201,12 +255,37 @@
             "(F (lava & (F (door & (F gem)))))",
             "(F (door & (F (gem & (F (pickaxe & (F lava)))))))",
             "(F (door & (F (gem & (F lava)))))"
+        ],
+        "paraphrased_success_rate_spot": 0.0,
+        "symbolic_lang2ltl_translations": [
+            "(F (c0 & (F c1)))",
+            "(((! c0) U c0) & (((! c1) U c2) & (F c1)))",
+            "((F (c0 & (F (c1 & (F (c2 & (F c3))))))) & ((! c0) | (G (c0 | (G ((! c0) | (G (c0 | (G (! c0))))))))))",
+            "(F (c0 & (F (c1 & (F (c2 & (F c3)))))))",
+            "((F (c0 & (F c1))) | ((F c2) & (F c3)))",
+            "(F (c0 & (F (c1 & (F (c2 & (F c3)))))))",
+            "(F (c0 & (F (c1 & (F c3)))))",
+            "(F (c1 & (F (c2 & (F c3)))))",
+            "(F (c2 & (F (c3 & (F (c0 & (F c1)))))))",
+            "(F (c2 & (F (c3 & (F c1)))))"
+        ],
+        "filtered_symbolic_lang2ltl_translations": [
+            "(F (c0 & (F c1)))",
+            "(((! c0) U c0) & (((! c1) U c2) & (F c1)))",
+            "((F (c0 & (F (c1 & (F (c2 & (F c3))))))) & ((! c0) | (G (c0 | (G ((! c0) | (G (c0 | (G (! c0))))))))))",
+            "(F (c0 & (F (c1 & (F (c2 & (F c3)))))))",
+            "((F (c0 & (F c1))) | ((F c2) & (F c3)))",
+            "(F (c0 & (F (c1 & (F c3)))))",
+            "(F (c1 & (F (c2 & (F c3)))))",
+            "(F (c2 & (F (c3 & (F (c0 & (F c1)))))))",
+            "(F (c2 & (F (c3 & (F c1)))))"
         ]
     },
     {
         "formula": "F(c0 & F(c1)) & (F c2)",
         "num_symbols": 3,
         "description": "task5: seq_visit(pickaxe, lava) + visit(door)",
+        "name": "task5",
         "utterance": "First visit the pickaxe, then visit the lava. Also, visit the door.",
         "paraphrased_utterances": [
             "Go to the mining tool first, then head over to the molten rock; be sure to check in at the gateway as well.",
@@ -255,12 +334,35 @@
             "(((! door) U pickaxe) & (((! lava) U door) & (F lava)))",
             "(((! door) U pickaxe) & (((! lava) U door) & (F lava)))",
             "(G (pickaxe -> (X lava)))"
+        ],
+        "paraphrased_success_rate_spot": 0.2,
+        "symbolic_lang2ltl_translations": [
+            "((F (c0 & (F (c1 & (F c2))))) | ((F c1) & (F c0)))",
+            "((F (c0 & (F c1))) & (F c2))",
+            "(F (c0 & (F (c1 & (F c2)))))",
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "(((! c1) U c0) & (F c2))",
+            "((F (c2 & (F c1))) | ((! c0) | (G (c0 | (G ((! c0) | (G (c0 | (G (! c1))))))))))",
+            "(((! c2) U c0) & (((! c1) U c2) & (F c1)))",
+            "(((! c2) U c0) & (((! c1) U c2) & (F c1)))",
+            "(G (c0 -> (X c1)))"
+        ],
+        "filtered_symbolic_lang2ltl_translations": [
+            "((F (c0 & (F (c1 & (F c2))))) | ((F c1) & (F c0)))",
+            "(F (c0 & (F (c1 & (F c2)))))",
+            "(F (c0 & (F c1)))",
+            "(((! c1) U c0) & (F c2))",
+            "((F (c2 & (F c1))) | ((! c0) | (G (c0 | (G ((! c0) | (G (c0 | (G (! c1))))))))))",
+            "(((! c2) U c0) & (((! c1) U c2) & (F c1)))",
+            "(G (c0 -> (X c1)))"
         ]
     },
     {
         "formula": "F(c0 & F(c1)) & (F c2) & (F c3)",
         "num_symbols": 4,
         "description": "task6: seq_visit(pickaxe, lava) + visit(door, gem)",
+        "name": "task6",
         "utterance": "First visit the pickaxe, then visit the lava. Also, visit the door and the gem.",
         "paraphrased_utterances": [
             "Start by going to the mining axe, then head over to the molten rock. In addition, check out the doorway and the jewel.",
@@ -309,12 +411,35 @@
             "(F (door & (F (pickaxe & (F lava)))))",
             "(((! gem) U door) & (((! lava) U gem) & (F lava)))",
             "(F (pickaxe & (F (door & (F (gem & (F lava)))))))"
+        ],
+        "paraphrased_success_rate_spot": 0.3,
+        "symbolic_lang2ltl_translations": [
+            "((F (c0 & (F c1))) | ((F c2) & (F c3)))",
+            "((F c0) & (F c1))",
+            "((F (c0 & (F c1))) & ((F c2) & (F c3)))",
+            "((F c0) & (F c1))",
+            "(F (c0 & (F (c1 & (F c3)))))",
+            "(((! c3) U c0) & (((! c2) U c3) & (F c2)))",
+            "(F (c2 & (F (c0 & (F c1)))))",
+            "(F (c2 & (F (c0 & (F c1)))))",
+            "(((! c3) U c2) & (((! c1) U c3) & (F c1)))",
+            "(F (c0 & (F (c2 & (F (c3 & (F c1)))))))"
+        ],
+        "filtered_symbolic_lang2ltl_translations": [
+            "((F (c0 & (F c1))) | ((F c2) & (F c3)))",
+            "((F c0) & (F c1))",
+            "(F (c0 & (F (c1 & (F c3)))))",
+            "(((! c3) U c0) & (((! c2) U c3) & (F c2)))",
+            "(F (c2 & (F (c0 & (F c1)))))",
+            "(((! c3) U c2) & (((! c1) U c3) & (F c1)))",
+            "(F (c0 & (F (c2 & (F (c3 & (F c1)))))))"
         ]
     },
     {
         "formula": "(F c0) & (F c1) & (G (! c2))",
         "num_symbols": 3,
         "description": "task7: visit(pickaxe, lava) + glob_av(door)",
+        "name": "task7",
         "utterance": "Visit the pickaxe and the lava, always avoid the door.",
         "paraphrased_utterances": [
             "Go to the mining tool and the molten rock, continually steer clear of the doorway.",
@@ -363,12 +488,34 @@
             "((F door) & (F (pickaxe & (F lava))))",
             "((G (! lava)) & ((G (! pickaxe)) & (G (! door))))",
             "((G (! door)) & ((G (! pickaxe)) & (G (! lava))))"
+        ],
+        "paraphrased_success_rate_spot": 0.1,
+        "symbolic_lang2ltl_translations": [
+            "((G (! c0)) & (G (! c1)))",
+            "((G (! c0)) & (G (! c1)))",
+            "(((! c0) U c0) & (((! c1) U c2) & (F c1)))",
+            "((G (! c0)) & (G (! c1)))",
+            "((F c0) & ((F c0) & (F c1)))",
+            "((G (! c2)) & ((G (! c0)) & (G (! c1))))",
+            "((F c2) & (F (c0 & (F c1))))",
+            "((F c2) & (F (c0 & (F c1))))",
+            "((G (! c1)) & ((G (! c0)) & (G (! c2))))",
+            "((G (! c2)) & ((G (! c0)) & (G (! c1))))"
+        ],
+        "filtered_symbolic_lang2ltl_translations": [
+            "((G (! c0)) & (G (! c1)))",
+            "(((! c0) U c0) & (((! c1) U c2) & (F c1)))",
+            "((F c0) & ((F c0) & (F c1)))",
+            "((G (! c2)) & ((G (! c0)) & (G (! c1))))",
+            "((F c2) & (F (c0 & (F c1))))",
+            "((G (! c1)) & ((G (! c0)) & (G (! c2))))"
         ]
     },
     {
         "formula": "(F c0) & (F c1) & (G (! c2)) & (G(! c3))",
         "num_symbols": 4,
         "description": "task8: visit(pickaxe, lava) + glob_av(door) + glob_av(gem)",
+        "name": "task8",
         "utterance": "Visit the pickaxe and the lava, always avoid the door and the gem.",
         "paraphrased_utterances": [
             "Go to the mining tool and the molten rock, consistently steer clear of the doorway and the jewel.",
@@ -417,12 +564,37 @@
             "((F pickaxe) & (F lava))",
             "((G (! lava)) & ((G (! pickaxe)) & ((G (! door)) & (G (! gem)))))",
             "((G (! door)) & (G (! gem)))"
+        ],
+        "paraphrased_success_rate_spot": 0.1,
+        "symbolic_lang2ltl_translations": [
+            "((G (! c0)) & (G (! c1)))",
+            "(((! c1) U c0) & (((! c2) U c1) & (F c2)))",
+            "(((! c0) U c0) & (((! c1) U c2) & (F c3)))",
+            "((G (! c2)) & ((G (! c0)) & (G (! c1))))",
+            "(((F c0) & ((F c1) & ((F c2) & (F c3)))) | ((! c0) | (G (c0 | (G ((! c0) | (G (c0 | (G (! c0))))))))))",
+            "((G (! c2)) & ((G (! c0)) & (G (! c1))))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((F c0) & (F c1))",
+            "((G (! c1)) & ((G (! c0)) & ((G (! c2)) & (G (! c3)))))",
+            "((G (! c2)) & (G (! c3)))"
+        ],
+        "filtered_symbolic_lang2ltl_translations": [
+            "((G (! c0)) & (G (! c1)))",
+            "(((! c1) U c0) & (((! c2) U c1) & (F c2)))",
+            "(((! c0) U c0) & (((! c1) U c2) & (F c3)))",
+            "((G (! c2)) & ((G (! c0)) & (G (! c1))))",
+            "(((F c0) & ((F c1) & ((F c2) & (F c3)))) | ((! c0) | (G (c0 | (G ((! c0) | (G (c0 | (G (! c0))))))))))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((F c0) & (F c1))",
+            "((G (! c1)) & ((G (! c0)) & ((G (! c2)) & (G (! c3)))))",
+            "((G (! c2)) & (G (! c3)))"
         ]
     },
     {
         "formula": "F(c0 & F(c1)) & G (! c2)",
         "num_symbols": 3,
         "description": "task9: seq_visit(pickaxe, lava) + glob_av(door)",
+        "name": "task9",
         "utterance": "First visit the pickaxe, then visit the lava. Always avoid the door.",
         "paraphrased_utterances": [
             "Start by going to the mining tool, then proceed to the molten rock. Keep away from the doorway at all times.",
@@ -471,12 +643,33 @@
             "((F door) & (F (pickaxe & (F lava))))",
             "(G (pickaxe -> (X (G (! lava)))))",
             "((G (! door)) | (F (pickaxe & (F lava))))"
+        ],
+        "paraphrased_success_rate_spot": 1.0,
+        "symbolic_lang2ltl_translations": [
+            "(((! c1) U c0) & (F c1))",
+            "(((! c1) U c0) & (F c1))",
+            "(((! c0) U c0) & (((! c1) U c2) & (F c1)))",
+            "((G (! c2)) | (F (c0 & (F c1))))",
+            "(((! c1) U c0) & (F c1))",
+            "((G (! c2)) & (F (c0 & (F c1))))",
+            "((F c2) & (F (c0 & (F c1))))",
+            "((F c2) & (F (c0 & (F c1))))",
+            "(G (c0 -> (X (G (! c1)))))",
+            "((G (! c2)) | (F (c0 & (F c1))))"
+        ],
+        "filtered_symbolic_lang2ltl_translations": [
+            "(((! c1) U c0) & (F c1))",
+            "(((! c0) U c0) & (((! c1) U c2) & (F c1)))",
+            "((G (! c2)) | (F (c0 & (F c1))))",
+            "((F c2) & (F (c0 & (F c1))))",
+            "(G (c0 -> (X (G (! c1)))))"
         ]
     },
     {
         "formula": "F(c0 & F(c1)) & G (! c2) & G(! c3)",
         "num_symbols": 4,
         "description": "task10: seq_visit(pickaxe, lava) + glob_av(door) + glob_av(gem)",
+        "name": "task10",
         "utterance": "First visit the pickaxe, then visit the lava. Always avoid the door and the gem.",
         "paraphrased_utterances": [
             "Go to the mining axe before heading to the molten rock. Steer clear of the doorway and the jewel at all times.",
@@ -525,6 +718,30 @@
             "((F (door & (F (pickaxe & (F lava))))) & ((G (! door)) & (G (! gem))))",
             "((G (! lava)) & ((G (! pickaxe)) & ((G (! door)) & (G (! gem)))))",
             "((G (! door)) & (G (! gem)))"
+        ],
+        "paraphrased_success_rate_spot": 0.8,
+        "symbolic_lang2ltl_translations": [
+            "(((! c2) U c0) & (((! c3) U c2) & (F c3)))",
+            "(((! c1) U c0) & (F c1))",
+            "(((! c0) U c0) & (((! c1) U c2) & (F c3)))",
+            "(((! c1) U c0) & (F c1))",
+            "(G (c0 -> (X (G (! c2)))))",
+            "((F (c2 & (F (c0 & (F c1))))) & ((G (! c3)) & (G (! c2))))",
+            "((F c0) & (F c1))",
+            "((F (c2 & (F (c0 & (F c1))))) & ((G (! c2)) & (G (! c3))))",
+            "((G (! c1)) & ((G (! c0)) & ((G (! c2)) & (G (! c3)))))",
+            "((G (! c2)) & (G (! c3)))"
+        ],
+        "filtered_symbolic_lang2ltl_translations": [
+            "(((! c2) U c0) & (((! c3) U c2) & (F c3)))",
+            "(((! c1) U c0) & (F c1))",
+            "(((! c0) U c0) & (((! c1) U c2) & (F c3)))",
+            "(G (c0 -> (X (G (! c2)))))",
+            "((F (c2 & (F (c0 & (F c1))))) & ((G (! c3)) & (G (! c2))))",
+            "((F c0) & (F c1))",
+            "((F (c2 & (F (c0 & (F c1))))) & ((G (! c2)) & (G (! c3))))",
+            "((G (! c1)) & ((G (! c0)) & ((G (! c2)) & (G (! c3)))))",
+            "((G (! c2)) & (G (! c3)))"
         ]
     }
 ]

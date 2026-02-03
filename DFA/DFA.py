@@ -1,5 +1,7 @@
 
 from flloat.parser.ltlf import LTLfParser
+# TODO: Use ltl2dfa
+# from ltlf2dfa.parser.ltlf import LTLfParser
 
 class DFA:
     def __init__(self, ltl_formula, num_symbols, formula_name, dictionary_symbols):
@@ -8,14 +10,17 @@ class DFA:
         parser = LTLfParser()
         ltl_formula_parsed = parser(ltl_formula)
         dfa = ltl_formula_parsed.to_automaton()
+        # dfa = ltl_formula_parsed.to_dfa()
+        # print("Formula:", ltl_formula_parsed)
+        # print("dfa:", dfa)
         # print the automaton
-        #graph = dfa.to_graphviz()
-        #graph.render("data/symbolicDFAs/"+formula_name)
+        graph = dfa.to_graphviz()
+        graph.render("data/symbolicDFAs/"+formula_name)
         #From symbolic DFA to simple DFA
         # print("DFA dict:", dfa.__dict__)
         self.alphabet = ["c" + str(i) for i in range(num_symbols)]
         self.transitions = self.reduce_dfa(dfa)
-        # print("Transitions: ", self.transitions)
+        print("Transitions: ", self.transitions)
         self.num_of_states = len(self.transitions)
         self.acceptance = []
         for s in range(self.num_of_states):

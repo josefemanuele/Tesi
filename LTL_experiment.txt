@@ -1,0 +1,9 @@
+# LTL Experiment Log
+Model: gpt-5.2
+Create data: False
+Paraphrase: False
+Translate: False
+Evaluate: False
+Lang2LTL: False
+Experiment started at 2026-02-02 15:44:30
+Experiment ended at 2026-02-02 15:44:30

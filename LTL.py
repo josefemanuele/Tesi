@@ -5,8 +5,12 @@ from NeuralRewardMachines.LTL_tasks import formulas, utterances
 from DFA.DFA import DFA
 import json
 from datetime import datetime
-from Lang2LTLWrapper import translate
+from Lang2LTLWrapper import toSymbolic, translate
 import spot
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from utils.utils import unique_ordered_list
 
 models = ['gpt-5.2', 'gpt-5', 'gpt-5-mini', 'gpt-5-nano']
 models = models[:]
@@ -143,6 +147,12 @@ def check_equivalence(ltl1, ltl2, num_symbols):
     # equivalence = (equivalence_automaton.num_of_states == 1 and equivalence_automaton.acceptance[0] == True)
     return equivalence
 
+def plot_equivalence_results(data):
+    df = pd.DataFrame(data)
+    sns.relplot(df, x='name', y="paraphrased_success_rate_spot", kind="scatter")
+    plt.savefig("data/Lang2LTL/LLM_Translation_Success_Rate.png")
+    plt.close()
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Handle LTL tasks with LLMs")
     parser.add_argument("--model", type=str, default='gpt-5.2', help="Language model to use")
@@ -151,6 +161,9 @@ if __name__ == "__main__":
     parser.add_argument("--translate", default=False, help="Whether to translate paraphrases to LTL", action='store_true')
     parser.add_argument("--evaluate", default=False, help="Whether to evaluate equivalence of translated LTLs with correct LTL", action='store_true')
     parser.add_argument("--lang2ltl", default=False, help="Whether to translate utterances with Lang2LTL", action='store_true')
+    parser.add_argument("--plot", default=False, help="Plot translation success rates", action='store_true')
+    parser.add_argument("--to-symbolic", default=False, help="Convert translated LTL formulas to symbolic form", action='store_true')
+    parser.add_argument("--filter", default=False, help="Filter translated LTL formulas", action='store_true')
     args = parser.parse_args()
     with open('LTL_experiment.txt', 'w') as f:
         f.write('# LTL Experiment Log\n')
@@ -207,6 +220,26 @@ if __name__ == "__main__":
                 ltls.append(ltl)
                 print(f'NL Utt: {nlu} > LTL: {ltl}')
             d['lang2ltl_translations'] = ltls
+    if args.plot:
+        plot_equivalence_results(data)
+    if args.to_symbolic:
+        for d in data:
+            translated_ltls = d.get("lang2ltl_translations", [])
+            symbolic_ltls = []
+            for ltl in translated_ltls:
+                symbolic_ltl = toSymbolic(ltl)
+                symbolic_ltls.append(symbolic_ltl)
+                print(f'Translated LTL: {ltl} > Symbolic LTL: {symbolic_ltl}')
+            d['symbolic_lang2ltl_translations'] = symbolic_ltls
+    if args.filter:
+        for d in data:
+            ground_truth = d['formula']
+            translated_ltls = unique_ordered_list(d["symbolic_lang2ltl_translations"])
+            filtered_ltls = []
+            for ltl in translated_ltls:
+                if not check_equivalence(ltl, ground_truth, d['num_symbols']):
+                    filtered_ltls.append(ltl)
+            d['filtered_symbolic_lang2ltl_translations'] = filtered_ltls
     # Store data
     store_data()
     with open('LTL_experiment.txt', 'a') as f:

@@ -36,6 +36,13 @@ obj2sem = {
 }
 keep_keys = ["pickaxe", "lava", "door", "gem"]
 
+obj_to_symbol = {
+    "pickaxe": "c0",
+    "lava": "c1",
+    "door": "c2",
+    "gem": "c3"
+}
+
 def mapOperator(op):
     operator_map = {
         'i': '->',
@@ -74,6 +81,12 @@ def prefixToInfix(prefix):
     infix = stack.pop()
     return infix
 
+def toSymbolic(formula):
+    ''' Convert Lang2LTL formula to symbolic form used in LTLfParser.'''
+    for sym, obj in obj_to_symbol.items():
+        formula = formula.replace(sym, obj)
+    return formula
+
 def translate(utt):
     result = lang2ltl(utt, obj2sem, keep_keys, rer_prompt_fpath='data/Lang2LTL/RErecognition/rer_prompt_GWE.txt')
     # result = parse(utt, obj2sem, keep_keys, rer_prompt_fpath='data/rer_prompt_GWE.txt')
@@ -82,5 +95,5 @@ def translate(utt):
     # print(f'Infix: {infix}')
     # parser = LTLfParser()
     # formula = parser(infix)
-    formula = infix
-    return formula
+    symbolic_formula = toSymbolic(infix)
+    return symbolic_formula
