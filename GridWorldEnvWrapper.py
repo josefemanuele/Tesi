@@ -40,7 +40,7 @@ class GridWorldEnvWrapper(GridWorldEnv):
         # global_markovianity_rate = sum([max([reward['percentage'] for reward in self.markovianity_stats[transition].values()]) for transition in self.markovianity]) / len(self.markovianity)
         sum_ = sum([max([reward['percentage'] for reward in self.markovianity_stats[transition].values()]) for transition in self.markovianity])
         transitions = len(self.markovianity)
-        global_markovianity_rate = f'{sum_} / {transitions} = {sum_ / transitions}'
+        global_markovianity_rate = sum_ / transitions
         return global_markovianity_rate
     
     def get_markovianity(self):
