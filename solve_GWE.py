@@ -6,9 +6,9 @@ from sympy import re
 from NeuralRewardMachines.LTL_tasks import formulas, ltls
 from GridWorldEnvWrapper import GridWorldEnvWrapper
 from utils.DirectoryManager import DirectoryManager
-import pandas
+import pandas as pd
 from matplotlib import pyplot as plt
-import seaborn
+import seaborn as sns
 import random
 import numpy as np
 import torch
@@ -33,13 +33,13 @@ def set_seed(seed: int):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train PPO agent on GridWorld environment.")
     parser.add_argument("--algorithm", type=str, default="PPO", help="Reinforcement learning algorithm to use")
-    parser.add_argument("--formulas", type=int, default=10, help="Number of formulas to consider from LTL_tasks")
+    parser.add_argument("--formulas", type=int, default=3, help="Number of formulas to consider from LTL_tasks")
     parser.add_argument("--external-automaton", action='store_true', help="If set, use external automaton")
     parser.add_argument("--no-automaton", action='store_true', help="If set, do not use automaton states")
     parser.add_argument("--image-state", action='store_true', help="Set state type to image")
     parser.add_argument("--render-mode", type=str, default="human", help="Set render mode")
-    parser.add_argument("--runs", type=int, default=8, help="Experiment runs per formula")
-    parser.add_argument("--episodes", type=int, default=10_000, help="Number of episodes to train")
+    parser.add_argument("--runs", type=int, default=1, help="Experiment runs per formula")
+    parser.add_argument("--episodes", type=int, default=3_000, help="Number of episodes to train")
     parser.add_argument("--steps", type=int, default=256, help="Number of steps per rollout")
     parser.add_argument("--minibatch_size", type=int, default=64, help="Minibatch size for PPO updates")
     parser.add_argument("--epochs", type=int, default=4, help="Number of epochs per rollout")
@@ -59,12 +59,9 @@ if __name__ == "__main__":
     if external_automaton:
         use_automaton = True
     state_type = "image" if args.image_state else "symbolic"
-    runs = args.runs
     if args.test_translations:
-        runs = 1
         external_automaton = True
     if args.check_markovianity:
-        runs = 1
         external_automaton = True
     start_time = datetime.now().strftime("%Y-%m-%d.%H:%M:%S")
     # Log experiment parameters
@@ -78,7 +75,7 @@ if __name__ == "__main__":
         f.write(f"# Use automaton states: {use_automaton}\n")
         f.write(f"# Use external automaton: {external_automaton}\n")
         f.write(f"# Number of formulas: {args.formulas}\n")
-        f.write(f"# Runs per formula: {runs}\n")
+        f.write(f"# Runs per formula: {args.runs}\n")
         f.write(f"# Training episodes: {args.episodes}, steps per rollout: {args.steps}, minibatch size: {args.minibatch_size}\n")
         f.write(f"# epochs: {args.epochs}, clip_epsilon: {args.clip_epsilon}, lr: {args.lr}\n") 
         f.write(f"# vf_coef: {args.vf_coef}, ent_coef: {args.ent_coef}, max_grad_norm: {args.max_grad_norm}\n")
@@ -120,8 +117,9 @@ if __name__ == "__main__":
                 check_markovianity=args.check_markovianity
                 )
             # List of external formulas / list of automatas / for loop iterating over code.
-            for r in range(1, runs + 1):
-                print(f"Experiment {r} / {runs}")
+            runs = list()
+            for r in range(1, args.runs + 1):
+                print(f"Experiment {r} / {args.runs}")
                 if args.algorithm == "DDQN":
                     _, data = DDQN.train_ddqn(device=device, env=env, episodes=args.episodes, max_steps=args.steps)
                 elif args.algorithm == "PPO":
@@ -131,15 +129,14 @@ if __name__ == "__main__":
                 else:
                     raise ValueError(f"ERROR: Algorithm {args.algorithm} not supported.")
                 # Add run column to data
-                df = pandas.DataFrame(data, columns=["episode", "episode_reward", "episode_length", "done", "truncated", "total_steps"])
+                df = pd.DataFrame(data, columns=["episode", "episode_reward", "episode_length", "done", "truncated", "total_steps"])
                 df["reward_rolling_avg"] = df["episode_reward"].rolling(window=100, min_periods=1).mean()
                 df["run"] = r
                 df["n_ltl"] = n_ltl
                 df["ltl"] = ltl
-                dfs.append(df)
                 if args.check_markovianity:
                     markovianity_statistics = env.get_markovianity_statistics()
-                    with open(dm.get_formula_folder() + f"markovianity_ltl_{n_ltl}.txt", "w") as f:
+                    with open(dm.get_formula_folder() + f"markovianity_ltl_{n_ltl}_r_{r}.txt", "w") as f:
                         f.write(f"Markovianity statistics for LTL formula: {ltl}\n")
                         f.write(f"Correct formula: {formula}\n")
                         f.write(f"Is Markovian: {env.is_markovian()}\n")
@@ -150,18 +147,28 @@ if __name__ == "__main__":
                         for transition, rewards_info in markovianity_statistics.items():
                             for reward, info in rewards_info.items():
                                 f.write(f"Transition {transition}, Reward {reward}, Count {info['count']}, Percentage {info['percentage']:.2f}\n")
+                    df["markovianity_rate"] = env.get_global_markovianity_rate()
+                runs.append(df)
+            ltl_df = pd.concat(runs, ignore_index=True)
+            if args.check_markovianity:
+                ltl_df['avg_markovianity'] = ltl_df['markovianity_rate'].mean()
+            dfs.append(ltl_df)
         # Concatenate dataframes from all runs
-        dataframe = pandas.concat(dfs, ignore_index=True)
+        dataframe = pd.concat(dfs, ignore_index=True)
         # Plot learning curves
-        differentiator = 'n_ltl' if args.test_translations else 'run'
         print(f"Plotting learning curves for: {description}")
-        plt.title(f"{args.algorithm} Learning Curve - {description}")
-        seaborn.relplot(data=dataframe, kind="line", x="episode", y="reward_rolling_avg", hue=differentiator)
-        plt.savefig(dm.get_formula_folder() + f"{args.algorithm}_Learning_Curve.png")
+        differentiator = 'n_ltl' if args.test_translations else 'run'
+        palette = sns.color_palette("rocket_r", as_cmap=True)
+        hue = 'avg_markovianity' if args.check_markovianity else None
+        # plt.title(f"{args.algorithm} Learning Curve per {differentiator} - {description}")
+        sns.relplot(data=dataframe, kind="line", x="episode", y="reward_rolling_avg", 
+                    palette=palette, style=differentiator, col=differentiator, hue=hue)
+        plt.savefig(dm.get_formula_folder() + f"{args.algorithm}_Learning_Curve_per_{differentiator}.png")
         plt.close()
-        plt.title(f"{args.algorithm} Learning Curve per run - {description}")
-        seaborn.relplot(data=dataframe, kind="line", x="episode", y="reward_rolling_avg", col=differentiator, hue=differentiator)
-        plt.savefig(dm.get_formula_folder() + f"{args.algorithm}_Learning_Curve_per_run.png")
+        # plt.title(f"{args.algorithm} Learning Curve - {description}")
+        sns.relplot(data=dataframe, kind="line", x="episode", y="reward_rolling_avg", 
+                    palette=palette, style=differentiator, hue=hue)
+        plt.savefig(dm.get_formula_folder() + f"{args.algorithm}_Learning_Curve.png")
         plt.close()
         # Save dataframe to CSV
         dataframe.to_csv(dm.get_formula_folder() + f"{args.algorithm}_Training_data.csv", index=False)
