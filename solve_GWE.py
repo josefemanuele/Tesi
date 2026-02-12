@@ -33,12 +33,12 @@ def set_seed(seed: int):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train PPO agent on GridWorld environment.")
     parser.add_argument("--algorithm", type=str, default="PPO", help="Reinforcement learning algorithm to use")
-    parser.add_argument("--formulas", type=int, default=3, help="Number of formulas to consider from LTL_tasks")
+    parser.add_argument("--formulas", type=int, default=10, help="Number of formulas to consider from LTL_tasks")
     parser.add_argument("--external-automaton", action='store_true', help="If set, use external automaton")
     parser.add_argument("--no-automaton", action='store_true', help="If set, do not use automaton states")
     parser.add_argument("--image-state", action='store_true', help="Set state type to image")
     parser.add_argument("--render-mode", type=str, default="human", help="Set render mode")
-    parser.add_argument("--runs", type=int, default=1, help="Experiment runs per formula")
+    parser.add_argument("--runs", type=int, default=3, help="Experiment runs per formula")
     parser.add_argument("--episodes", type=int, default=3_000, help="Number of episodes to train")
     parser.add_argument("--steps", type=int, default=256, help="Number of steps per rollout")
     parser.add_argument("--minibatch_size", type=int, default=64, help="Minibatch size for PPO updates")
@@ -53,6 +53,8 @@ if __name__ == "__main__":
     parser.add_argument("--test-translations", action='store_true', help="Test translated LTL formulas")
     parser.add_argument("--recompute-image-pkl", action='store_true', help="If set, recompute and overwrite image pkl files")
     parser.add_argument("--check-markovianity", action='store_true', help="If set, check Markovianity of the environment")
+    parser.add_argument("--add-baseline", action='store_true', help="If set, add baseline to the experiment")
+    parser.add_argument("--test-partial-formulas", action='store_true', help="If set, test partial LTL formulas")
     args = parser.parse_args()
     use_automaton = not args.no_automaton
     external_automaton = args.external_automaton
@@ -60,6 +62,8 @@ if __name__ == "__main__":
         use_automaton = True
     state_type = "image" if args.image_state else "symbolic"
     if args.test_translations:
+        external_automaton = True
+    if args.test_partial_formulas:
         external_automaton = True
     if args.check_markovianity:
         external_automaton = True
@@ -83,13 +87,15 @@ if __name__ == "__main__":
         f.write(f"# seed: {args.seed}\n")
         f.write(f"# test_translations: {args.test_translations}\n")
         f.write(f"# check_markovianity: {args.check_markovianity}\n")
+        f.write(f"# add_baseline: {args.add_baseline}\n")
+        f.write(f"# test_partial_formulas: {args.test_partial_formulas}\n")
         f.write(f"# start_time: {start_time}\n")
     # TODO: Check seeding working properly
     set_seed(args.seed)
     # Load LTL formulas
     LTL.load_data()
     data = LTL.get_data()
-    for d in data[:args.formulas]:
+    for d in data[2:args.formulas]:
         formula = d['formula']
         n_symbols = d['num_symbols']
         description = d['description']
@@ -99,22 +105,32 @@ if __name__ == "__main__":
         print(f"Running experiments for: {description}")
         # Dataframe collecting data from all runs
         dfs = list()
-        ltls = [formula]
-        if args.test_translations:
-            translated_ltls = d.get("filtered_symbolic_lang2ltl_translations", [])
-            ltls.extend(unique_ordered_list(translated_ltls))
-            print(f"Testing translated LTL formulas: {list(enumerate(ltls))}")
-        for n_ltl, ltl in enumerate(ltls):
+        ltls = {"upper_bound": formula}
+        # if args.test_translations:
+        #     translated_ltls = d.get("filtered_symbolic_lang2ltl_translations", [])
+        #     ltls.extend(unique_ordered_list(translated_ltls))
+        #     print(f"Testing translated LTL formulas: {list(enumerate(ltls))}")
+        if args.test_partial_formulas:
+            partial_formulas = d.get("partial_formulas", [])
+            ltls.update({f"partial_{n}": partial_formula for n, partial_formula in enumerate(partial_formulas)})
+        if args.add_baseline:
+            ltls["baseline"] = 0
+        print(f'Testing LTL formulas: {ltls.items()}')
+        for ltl_tag, ltl in ltls.items():
+            print(f"Testing LTL formula: {ltl} with tag: {ltl_tag}")
+            _use_automaton = False if ltl_tag == "baseline" else use_automaton
+            _external_automaton = False if ltl_tag == "baseline" else external_automaton
+            _check_markovianity = False if ltl_tag == "baseline" else args.check_markovianity
             # Create environment
             env = GridWorldEnvWrapper(
-                formula=(formula, n_symbols, name + '_' + str(n_ltl)), 
+                formula=(formula, n_symbols, name + '_' + ltl_tag), 
                 render_mode=args.render_mode, 
                 state_type=state_type, 
-                use_dfa_state=use_automaton, 
-                external_automaton=external_automaton, 
+                use_dfa_state=_use_automaton, 
+                external_automaton=_external_automaton, 
                 external_automaton_formula=ltl,
                 recompute_image_pkl=args.recompute_image_pkl,
-                check_markovianity=args.check_markovianity
+                check_markovianity=_check_markovianity
                 )
             # List of external formulas / list of automatas / for loop iterating over code.
             runs = list()
@@ -132,11 +148,11 @@ if __name__ == "__main__":
                 df = pd.DataFrame(data, columns=["episode", "episode_reward", "episode_length", "done", "truncated", "total_steps"])
                 df["reward_rolling_avg"] = df["episode_reward"].rolling(window=100, min_periods=1).mean()
                 df["run"] = r
-                df["n_ltl"] = n_ltl
+                df["ltl_tag"] = ltl_tag
                 df["ltl"] = ltl
-                if args.check_markovianity:
+                if _check_markovianity:
                     markovianity_statistics = env.get_markovianity_statistics()
-                    with open(dm.get_formula_folder() + f"markovianity_ltl_{n_ltl}_r_{r}.txt", "w") as f:
+                    with open(dm.get_formula_folder() + f"markovianity_ltl_{ltl_tag}_r_{r}.txt", "w") as f:
                         f.write(f"Markovianity statistics for LTL formula: {ltl}\n")
                         f.write(f"Correct formula: {formula}\n")
                         f.write(f"Is Markovian: {env.is_markovian()}\n")
@@ -148,6 +164,8 @@ if __name__ == "__main__":
                             for reward, info in rewards_info.items():
                                 f.write(f"Transition {transition}, Reward {reward}, Count {info['count']}, Percentage {info['percentage']:.2f}\n")
                     df["markovianity_rate"] = env.get_global_markovianity_rate()
+                if args.add_baseline and ltl_tag == "baseline":
+                    df["markovianity_rate"] = 0
                 runs.append(df)
             ltl_df = pd.concat(runs, ignore_index=True)
             if args.check_markovianity:
@@ -157,17 +175,29 @@ if __name__ == "__main__":
         dataframe = pd.concat(dfs, ignore_index=True)
         # Plot learning curves
         print(f"Plotting learning curves for: {description}")
-        differentiator = 'n_ltl' if args.test_translations else 'run'
-        palette = sns.color_palette("rocket_r", as_cmap=True)
+        differentiator = 'ltl_tag' # if args.test_translations else 'run'
+        aggregated_differentiator = 'ltl_tag' #if args.test_translations else None
+        palette = sns.color_palette("rocket_r", n_colors=len(ltls))
         hue = 'avg_markovianity' if args.check_markovianity else None
+        min_index = 1 if args.add_baseline else 0
+        markovianity_values = dataframe[hue].dropna().unique()
+        markovianity_values.sort()
+        min_markovianity = markovianity_values[min_index] 
+        max_markovianity = markovianity_values[-1]
+        hue_norm = ((max_markovianity - ((max_markovianity - min_markovianity) * 2)), max_markovianity) if args.check_markovianity and len(markovianity_values) > 2 else None
+        print(f"Markovianity values: {markovianity_values}, min_markovianity: {min_markovianity}, max_markovianity: {max_markovianity}")
+        print(f'Hue: {hue}, Hue norm: {hue_norm}')
+        # hue_norm = None if args.test_partial_formulas else hue_norm
         # plt.title(f"{args.algorithm} Learning Curve per {differentiator} - {description}")
+        # Plot differentated learning curves
         sns.relplot(data=dataframe, kind="line", x="episode", y="reward_rolling_avg", 
-                    palette=palette, style=differentiator, col=differentiator, hue=hue)
+                    palette=palette, style=differentiator, col=differentiator, hue=hue, hue_norm=hue_norm)
         plt.savefig(dm.get_formula_folder() + f"{args.algorithm}_Learning_Curve_per_{differentiator}.png")
         plt.close()
         # plt.title(f"{args.algorithm} Learning Curve - {description}")
+        # Plot aggregated learning curve
         sns.relplot(data=dataframe, kind="line", x="episode", y="reward_rolling_avg", 
-                    palette=palette, style=differentiator, hue=hue)
+                    palette=palette, style=aggregated_differentiator, hue=hue, hue_norm=hue_norm)
         plt.savefig(dm.get_formula_folder() + f"{args.algorithm}_Learning_Curve.png")
         plt.close()
         # Save dataframe to CSV

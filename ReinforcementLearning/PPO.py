@@ -45,7 +45,7 @@ class ActorCritic(nn.Module):
         super().__init__()
         self.state_type = env.state_type
         self.use_dfa = env.use_dfa_state
-        automaton = env.external_automaton if env.external_automaton else env.automaton
+        automaton = env.external_automaton if hasattr(env, 'external_automaton') else env.automaton
         if self.state_type == "image":
             # CNN to extract features from 3x64x64 images
             self.cnn = nn.Sequential(
@@ -151,7 +151,7 @@ class ActorCritic(nn.Module):
 
 def obs_to_state(obs, env: GridWorldEnv, device):
     """Convert environment observation to tensor format."""
-    automaton = env.external_automaton if env.external_automaton else env.automaton
+    automaton = env.external_automaton if hasattr(env, 'external_automaton') else env.automaton
     if env.state_type == "symbolic":
         if env.use_dfa_state:
             arr = np.array(obs)

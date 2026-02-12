@@ -29,7 +29,7 @@ class DQN(nn.Module):
         super().__init__()
         self.state_type = env.state_type
         self.use_dfa = env.use_dfa_state
-        automaton = env.external_automaton if env.external_automaton else env.automaton
+        automaton = env.external_automaton if hasattr(env, 'external_automaton') else env.automaton
         if self.state_type == "image":
             # small CNN to extract features from 3x64x64 images
             self.cnn = nn.Sequential(
@@ -100,7 +100,7 @@ class DQN(nn.Module):
             return self.fc(x)
 
 def obs_to_state(obs, env: GridWorldEnv, device):
-    automaton = env.external_automaton if env.external_automaton else env.automaton
+    automaton = env.external_automaton if hasattr(env, 'external_automaton') else env.automaton
     # normalize/convert observation to tensors in the shape expected by DQN.forward
     if env.state_type == "symbolic":
         # If using DFA state we expect obs to contain the symbolic state and a one-hot/dfa part,
