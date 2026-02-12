@@ -5,6 +5,10 @@
         "description": "task1: visit(pickaxe, lava)",
         "name": "task1",
         "utterance": "Visit the pickaxe and visit the lava.",
+        "partial_formulas": [
+            "F c0",
+            "F c1"
+        ],
         "paraphrased_utterances": [
             "Go to the mining axe and head to the molten rock.  ",
             "Walk over to the rock hammer and proceed to the magma.  ",
@@ -68,7 +72,47 @@
         ],
         "filtered_symbolic_lang2ltl_translations": [
             "(F (c0 & (F c1)))"
-        ]
+        ],
+        "lang2ltl_accuracy_spot": 0.6,
+        "gpt-5.2_accuracy_spot": 0.2,
+        "gpt52_cot_ltls": [
+            "F(c0) & F(c1)",
+            "F c0 & F c1",
+            "F(c0) & F(c1)",
+            "F c0 & F c1",
+            "F c0 & F c1",
+            "F c0 & F c1",
+            "F(c0) & F(c1)",
+            "F c0 & F c1",
+            "F c0 & F c1",
+            "F c0 & F c1"
+        ],
+        "gpt52_cot_accuracy_spot": 1.0,
+        "pr_lang2ltl_translations": [
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "(((F c0) & (F c1)) | ((G (F c0)) & (G (F c1))))",
+            "((F c0) & (F c1))"
+        ],
+        "symbolic_pr_lang2ltl_translations": [
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "(((F c0) & (F c1)) | ((G (F c0)) & (G (F c1))))",
+            "((F c0) & (F c1))"
+        ],
+        "pr_lang2ltl_accuracy_spot": 1.0
     },
     {
         "formula": "(F c0) & (F c1) & (F c2)",
@@ -76,6 +120,12 @@
         "description": "task2: visit(pickaxe, lava, door)",
         "name": "task2",
         "utterance": "Visit the pickaxe, the lava, and the door.",
+        "partial_formulas": [
+            "F c0",
+            "F c1",
+            "F c0 & F c1",
+            "F c1 & F c2"
+        ],
         "natural_language_utterances": [
             "In any order, visit the pickaxe, the lava, and the door.",
             "Visit the pickaxe, the lava, and the door.",
@@ -129,7 +179,47 @@
             "(((F c0) & ((F c1) & (F c2))) | ((F c1) & (F c2)))",
             "((F (c1 & (F (c0 & (F c2))))) | ((! c1) | (G (c1 | (G ((! c1) | (G (c1 | (G (! c1))))))))))",
             "((G (F c1)) & ((G (F c0)) & (G (F c2))))"
-        ]
+        ],
+        "lang2ltl_accuracy_spot": 0.7,
+        "gpt-5.2_accuracy_spot": 0.4,
+        "gpt52_cot_ltls": [
+            "F c0 & F c1 & F c2",
+            "F c0 & F c1 & F c2",
+            "F c0 & F c1 & F c2",
+            "F c0 & F c1 & F c2",
+            "F c0 & F c1 & F c2",
+            "F c1 & F c0 & F c2",
+            "F",
+            "F c0 & F c1 & F c2",
+            "F c1 & F c0 & F c2",
+            "F c1 & F c0 & F c2"
+        ],
+        "gpt52_cot_accuracy_spot": 0.9,
+        "pr_lang2ltl_translations": [
+            "((F c0) & ((F c1) & (F c2)))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "(((F c1) & ((F c0) & (F c2))) | ((! c0) | (G (c0 | (G ((! c0) | (G (c0 | (G (! c0))))))))))",
+            "((F c2) & ((F c1) & (F c0)))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((G (F c1)) & ((G (F c0)) & (G (F c2))))",
+            "((F c1) & ((F c2) & (F c0)))"
+        ],
+        "symbolic_pr_lang2ltl_translations": [
+            "((F c0) & ((F c1) & (F c2)))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "(((F c1) & ((F c0) & (F c2))) | ((! c0) | (G (c0 | (G ((! c0) | (G (c0 | (G (! c0))))))))))",
+            "((F c2) & ((F c1) & (F c0)))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((G (F c1)) & ((G (F c0)) & (G (F c2))))",
+            "((F c1) & ((F c2) & (F c0)))"
+        ],
+        "pr_lang2ltl_accuracy_spot": 0.8
     },
     {
         "formula": "F(c0 & F(c1))",
@@ -137,6 +227,10 @@
         "description": "task3: seq_visit(pickaxe, lava)",
         "name": "task3",
         "utterance": "First visit the pickaxe, then visit the lava.",
+        "partial_formulas": [
+            "F c0",
+            "F c0 & F c1"
+        ],
         "paraphrased_utterances": [
             "Start by going to the mining tool, then head to the molten rock.",
             "Begin at the rock breaker, then proceed to the lava pool.",
@@ -200,7 +294,47 @@
         ],
         "filtered_symbolic_lang2ltl_translations": [
             "(((! c1) U c0) & (F c1))"
-        ]
+        ],
+        "lang2ltl_accuracy_spot": 0.8,
+        "gpt-5.2_accuracy_spot": 1.0,
+        "gpt52_cot_ltls": [
+            "F (c0 & F c1)",
+            "F(c0 & F c1)",
+            "F c0 & G(c0 -> F c1)",
+            "F(c0) & G(c0 -> F(c1))",
+            "F(c0 & F(c1))",
+            "F c0 & F c1 & (!c1 U c0)",
+            "((!c1) U c0) & F c1",
+            "F c1 & (!c1 U c0)",
+            "F c0 & F c1",
+            "F(c0 & F c1)"
+        ],
+        "gpt52_cot_accuracy_spot": 0.4,
+        "pr_lang2ltl_translations": [
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "((! c1) U c0)",
+            "((! c1) U c0)",
+            "(F (c0 & (F c1)))",
+            "((F c0) & (F c1))"
+        ],
+        "symbolic_pr_lang2ltl_translations": [
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "((! c1) U c0)",
+            "((! c1) U c0)",
+            "(F (c0 & (F c1)))",
+            "((F c0) & (F c1))"
+        ],
+        "pr_lang2ltl_accuracy_spot": 0.7
     },
     {
         "formula": "F(c0 & F(c1)) & F(c2 & F(c3))",
@@ -208,6 +342,13 @@
         "description": "task4: seq_visit(pickaxe, lava) + seq_visit(door, gem)",
         "name": "task4",
         "utterance": "Visit the pickaxe, then the lava. Also, visit the door, then the gem.",
+        "partial_formulas": [
+            "F c0",
+            "F (c0 & F c1)",
+            "F c2",
+            "F (c2 & F c3)",
+            "F c0 & F c1 & F c2 & F c3"
+        ],
         "paraphrased_utterances": [
             "Head to the mining axe first, then go to the molten rock. Next, approach the gateway, and afterward reach the jewel.",
             "Go to the rock breaker before the magma. Then proceed to the entrance, followed by the crystal.",
@@ -279,7 +420,47 @@
             "(F (c1 & (F (c2 & (F c3)))))",
             "(F (c2 & (F (c3 & (F (c0 & (F c1)))))))",
             "(F (c2 & (F (c3 & (F c1)))))"
-        ]
+        ],
+        "lang2ltl_accuracy_spot": 0.0,
+        "gpt-5.2_accuracy_spot": 0.0,
+        "gpt52_cot_ltls": [
+            "(F(c0 & F c1) & F(c2 & F c3))",
+            "((!c1 U c0) & F c1) & ((!c3 U c2) & F c3)",
+            "phases",
+            "(F c1 & (!c1 U c0)) & (F c3 & (!c3 U c2))",
+            "(F c0) & (F c1) & (F c2) & (F c3) & (!c1 U c0) & (!c3 U c2)",
+            "F(c0 & F c1) & F(c2 & F c3)",
+            "F c0 & (c0 -> F c1) & F c2 & (c2 -> F c3)",
+            "F(c0 & F c1) & F(c2 & F c3)",
+            "(F(c2 & F c3)) & (F(c0 & F c1))",
+            "G(c2 -> F c3)"
+        ],
+        "gpt52_cot_accuracy_spot": 0.4,
+        "pr_lang2ltl_translations": [
+            "((F c0) & (F (c1 & (F (c2 & (F c3))))))",
+            "(F c3)",
+            "((F (c0 & (F c3))) | ((! c0) | (G (c0 | (G ((! c0) | (G (c0 | (G (! c3))))))))))",
+            "((F c0) & (F (c1 & (F (c2 & (F c3))))))",
+            "((F (c0 & (F c1))) & ((F c2) & (F c3)))",
+            "(F (c0 & (F (c1 & (F (c2 & (F c3)))))))",
+            "((F c1) & (F c3))",
+            "(F (c2 & (F (c1 & (F (c0 & (F c3)))))))",
+            "(F (c2 & (F (c3 & (F (c0 & (F c1)))))))",
+            "(F (c3 & (F (c2 & (F c1)))))"
+        ],
+        "symbolic_pr_lang2ltl_translations": [
+            "((F c0) & (F (c1 & (F (c2 & (F c3))))))",
+            "(F c3)",
+            "((F (c0 & (F c3))) | ((! c0) | (G (c0 | (G ((! c0) | (G (c0 | (G (! c3))))))))))",
+            "((F c0) & (F (c1 & (F (c2 & (F c3))))))",
+            "((F (c0 & (F c1))) & ((F c2) & (F c3)))",
+            "(F (c0 & (F (c1 & (F (c2 & (F c3)))))))",
+            "((F c1) & (F c3))",
+            "(F (c2 & (F (c1 & (F (c0 & (F c3)))))))",
+            "(F (c2 & (F (c3 & (F (c0 & (F c1)))))))",
+            "(F (c3 & (F (c2 & (F c1)))))"
+        ],
+        "pr_lang2ltl_accuracy_spot": 0.0
     },
     {
         "formula": "F(c0 & F(c1)) & (F c2)",
@@ -287,6 +468,12 @@
         "description": "task5: seq_visit(pickaxe, lava) + visit(door)",
         "name": "task5",
         "utterance": "First visit the pickaxe, then visit the lava. Also, visit the door.",
+        "partial_formulas": [
+            "F c0",
+            "F (c0 & F c1)",
+            "F c2",
+            "F c0 & F c1 & F c3"
+        ],
         "paraphrased_utterances": [
             "Go to the mining tool first, then head over to the molten rock; be sure to check in at the gateway as well.",
             "Start by reaching the rock breaker, proceed to the magma next, and additionally stop by the entrance.",
@@ -356,7 +543,47 @@
             "((F (c2 & (F c1))) | ((! c0) | (G (c0 | (G ((! c0) | (G (c0 | (G (! c1))))))))))",
             "(((! c2) U c0) & (((! c1) U c2) & (F c1)))",
             "(G (c0 -> (X c1)))"
-        ]
+        ],
+        "lang2ltl_accuracy_spot": 0.1,
+        "gpt-5.2_accuracy_spot": 0.2,
+        "gpt52_cot_ltls": [
+            "(F c1) & ((!c1) U c0) & (F c2)",
+            "(F c0) & G(c0 -> F c1) & (F c2)",
+            "F(c0 & F(c1 & F(c2)))",
+            "F c2 & (F c0 & F c1) & (F(c0 & F c1))",
+            "(F c1) & (!c1 U c0) & (F c2)",
+            "F c2 & (!c1 U c0) & F c1",
+            "F c2 & (F c0 -> F (c0 & F c1))",
+            "F(c0 & F(c1 & F c2))",
+            "(F c0) & (F c1) & (F c2) & (G (c1 -> F c0)) & (G (!c0 -> !c1))",
+            "F(c0 & F c1)"
+        ],
+        "gpt52_cot_accuracy_spot": 0.1,
+        "pr_lang2ltl_translations": [
+            "((F (c0 & (F (c1 & (F c2))))) | ((! c0) | (G (c0 | (G ((! c0) | (G (c0 | (G (! c0))))))))))",
+            "(F (c0 & (F (c1 & (F c2)))))",
+            "(F (c0 & (F (c1 & (F c2)))))",
+            "((F c2) & (F (c0 & (F c1))))",
+            "(F (c0 & (F c1)))",
+            "(((! c2) U c0) & (((! c1) U c2) & (F c1)))",
+            "((F (c0 & (F (c2 & (F c1))))) | ((! c2) | (G (c2 | (G ((! c2) | (G (c2 | (G (! c1))))))))))",
+            "((F c1) & ((F c0) & (F c2)))",
+            "(((! c0) U c1) & (((! c2) U c0) & (F c2)))",
+            "(F (c0 & (F c1)))"
+        ],
+        "symbolic_pr_lang2ltl_translations": [
+            "((F (c0 & (F (c1 & (F c2))))) | ((! c0) | (G (c0 | (G ((! c0) | (G (c0 | (G (! c0))))))))))",
+            "(F (c0 & (F (c1 & (F c2)))))",
+            "(F (c0 & (F (c1 & (F c2)))))",
+            "((F c2) & (F (c0 & (F c1))))",
+            "(F (c0 & (F c1)))",
+            "(((! c2) U c0) & (((! c1) U c2) & (F c1)))",
+            "((F (c0 & (F (c2 & (F c1))))) | ((! c2) | (G (c2 | (G ((! c2) | (G (c2 | (G (! c1))))))))))",
+            "((F c1) & ((F c0) & (F c2)))",
+            "(((! c0) U c1) & (((! c2) U c0) & (F c2)))",
+            "(F (c0 & (F c1)))"
+        ],
+        "pr_lang2ltl_accuracy_spot": 0.1
     },
     {
         "formula": "F(c0 & F(c1)) & (F c2) & (F c3)",
@@ -364,6 +591,12 @@
         "description": "task6: seq_visit(pickaxe, lava) + visit(door, gem)",
         "name": "task6",
         "utterance": "First visit the pickaxe, then visit the lava. Also, visit the door and the gem.",
+        "partial_formulas": [
+            "F c0",
+            "F (c0 & F c1)",
+            "F c2 & F c3",
+            "F c0 & F c1 & F c2 & F c3"
+        ],
         "paraphrased_utterances": [
             "Start by going to the mining axe, then head over to the molten rock. In addition, check out the doorway and the jewel.",
             "Begin with a stop at the rock hammer, then proceed to the lava pool. Also, make your way to the gate and the crystal.",
@@ -433,7 +666,47 @@
             "(F (c2 & (F (c0 & (F c1)))))",
             "(((! c3) U c2) & (((! c1) U c3) & (F c1)))",
             "(F (c0 & (F (c2 & (F (c3 & (F c1)))))))"
-        ]
+        ],
+        "lang2ltl_accuracy_spot": 0.1,
+        "gpt-5.2_accuracy_spot": 0.3,
+        "gpt52_cot_ltls": [
+            "F(c0 & F(c1)) & F(c2) & F(c3)",
+            "F c0 & F c1 & F c2 & F c3",
+            "F(c0 & F(c1)) & F(c2) & F(c3)",
+            "F(c0 & F(c1)) & F(c2) & F(c3)",
+            "F(c0 & F(c1 & F(c2 & F(c3))))",
+            "F c3 & F c2 & F c0 & G(c1 -> c0)",
+            "(F c0) & (F c2) & (F c3) & F(c0 & F c1)",
+            "(F c0) & (G (c0 -> F c1)) & (F c2) & (F c3)",
+            "(!c2 U c0) & (!c3 U c0) & (!c1 U c0) & F(c0) & F(c2) & F(c3) & F(c1)",
+            "F c2 & F c3 & F c0 & G(c1 -> F c0)"
+        ],
+        "gpt52_cot_accuracy_spot": 0.4,
+        "pr_lang2ltl_translations": [
+            "((F (c0 & (F c1))) | ((F c2) & (F c3)))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "(F (c0 & (F (c1 & (F (c2 & (F c3)))))))",
+            "(((! c2) U c3) & (((! c0) U c2) & (((! c1) U c0) & (F c1))))",
+            "((F c0) & ((F c1) & ((F c2) & (F c3))))",
+            "(F (c0 & (F (c2 & (F c1)))))",
+            "(((! c3) U c0) & (((! c1) U c3) & (F c1)))",
+            "(F (c0 & (F (c2 & (F (c3 & (F c1)))))))"
+        ],
+        "symbolic_pr_lang2ltl_translations": [
+            "((F (c0 & (F c1))) | ((F c2) & (F c3)))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "(F (c0 & (F (c1 & (F (c2 & (F c3)))))))",
+            "(((! c2) U c3) & (((! c0) U c2) & (((! c1) U c0) & (F c1))))",
+            "((F c0) & ((F c1) & ((F c2) & (F c3))))",
+            "(F (c0 & (F (c2 & (F c1)))))",
+            "(((! c3) U c0) & (((! c1) U c3) & (F c1)))",
+            "(F (c0 & (F (c2 & (F (c3 & (F c1)))))))"
+        ],
+        "pr_lang2ltl_accuracy_spot": 0.0
     },
     {
         "formula": "(F c0) & (F c1) & (G (! c2))",
@@ -441,6 +714,11 @@
         "description": "task7: visit(pickaxe, lava) + glob_av(door)",
         "name": "task7",
         "utterance": "Visit the pickaxe and the lava, always avoid the door.",
+        "partial_formulas": [
+            "F c0",
+            "G (! c2)",
+            "F c0 & G (! c2)"
+        ],
         "paraphrased_utterances": [
             "Go to the mining tool and the molten rock, continually steer clear of the doorway.",
             "Head over to the rock hammer and the magma, and never approach the gate.",
@@ -509,7 +787,47 @@
             "((G (! c2)) & ((G (! c0)) & (G (! c1))))",
             "((F c2) & (F (c0 & (F c1))))",
             "((G (! c1)) & ((G (! c0)) & (G (! c2))))"
-        ]
+        ],
+        "lang2ltl_accuracy_spot": 0.0,
+        "gpt-5.2_accuracy_spot": 0.1,
+        "gpt52_cot_ltls": [
+            "(F c0) & (F c1) & (G !c2)",
+            "(F c0) & (F c1) & (G !c2)",
+            "F(c0 & F(c1)) & G(!c2)",
+            "G(!c2) & F(c0) & F(c1)",
+            "(F c0) & (F c1) & (G !c2)",
+            "G(!c2) & F(c0) & F(c1)",
+            "(F(c0 & F c1)) & G(!c2)",
+            "F(c0 & F c1) & G !c2",
+            "(F c1) & (F c0) & (G !c2)",
+            "G !c2 & F c0 & F c1"
+        ],
+        "gpt52_cot_accuracy_spot": 0.7,
+        "pr_lang2ltl_translations": [
+            "((G (! c0)) & (G (! c1)))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((G (! c0)) & (G (! c1)))",
+            "((G (! c2)) & ((G (! c0)) & (G (! c1))))",
+            "((F c0) & (F c1))",
+            "((F c2) & ((F c0) & (F c1)))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((G (! c0)) & (G (! c1)))",
+            "((F c1) & (F c0))",
+            "((G (F c2)) & ((G (F c0)) & (G (F c1))))"
+        ],
+        "symbolic_pr_lang2ltl_translations": [
+            "((G (! c0)) & (G (! c1)))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((G (! c0)) & (G (! c1)))",
+            "((G (! c2)) & ((G (! c0)) & (G (! c1))))",
+            "((F c0) & (F c1))",
+            "((F c2) & ((F c0) & (F c1)))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((G (! c0)) & (G (! c1)))",
+            "((F c1) & (F c0))",
+            "((G (F c2)) & ((G (F c0)) & (G (F c1))))"
+        ],
+        "pr_lang2ltl_accuracy_spot": 0.0
     },
     {
         "formula": "(F c0) & (F c1) & (G (! c2)) & (G(! c3))",
@@ -517,6 +835,12 @@
         "description": "task8: visit(pickaxe, lava) + glob_av(door) + glob_av(gem)",
         "name": "task8",
         "utterance": "Visit the pickaxe and the lava, always avoid the door and the gem.",
+        "partial_formulas": [
+            "F c0",
+            "G (! c2)",
+            "F c0 & F c1",
+            "G (! c2) & G (! c3)"
+        ],
         "paraphrased_utterances": [
             "Go to the mining tool and the molten rock, consistently steer clear of the doorway and the jewel.",
             "Head over to the rock pick and the magma, continually keep away from the entrance and the gemstone.",
@@ -588,7 +912,47 @@
             "((F c0) & (F c1))",
             "((G (! c1)) & ((G (! c0)) & ((G (! c2)) & (G (! c3)))))",
             "((G (! c2)) & (G (! c3)))"
-        ]
+        ],
+        "lang2ltl_accuracy_spot": 0.0,
+        "gpt-5.2_accuracy_spot": 0.1,
+        "gpt52_cot_ltls": [
+            "(F c0) & (F c1) & (G !c2) & (G !c3)",
+            "F c0 & F c1 & G !c2 & G !c3",
+            "F c0 & F c1 & G(c1 -> c0) & G(!c2) & G(!c3)",
+            "G !c2 & F c0 & F c1 & G !c3",
+            "(F c0 & F c1) & (G !c2) & (G !c3)",
+            "G !c2 & F c0 & F c1 & G !c3",
+            "eventually visit",
+            "(F c0) & (F c1) & (G !c2) & (G !c3)",
+            "(F c1) & (F c0) & (G !c2) & (F c3)",
+            "G(!c2 & !c3) & F(c0) & F(c1)"
+        ],
+        "gpt52_cot_accuracy_spot": 0.7,
+        "pr_lang2ltl_translations": [
+            "((G (! c0)) & (G (! c1)))",
+            "((G (! c0)) & (G (! c1)))",
+            "((G (! c0)) & ((G (! c1)) & (G (! c2))))",
+            "((G (! c2)) & ((G (! c0)) & (G (! c1))))",
+            "(((F c0) & ((F c1) & ((F c2) & (F c3)))) | ((G (F c0)) & (G (F c3))))",
+            "((G (! c2)) & ((G (! c0)) & (G (! c1))))",
+            "((G (! c0)) & (G (! c1)))",
+            "((F c0) & (F c1))",
+            "((F c1) & ((F c0) & ((F c2) & (F c3))))",
+            "((G (F c2)) & ((G (F c3)) & ((G (F c0)) & (G (F c1)))))"
+        ],
+        "symbolic_pr_lang2ltl_translations": [
+            "((G (! c0)) & (G (! c1)))",
+            "((G (! c0)) & (G (! c1)))",
+            "((G (! c0)) & ((G (! c1)) & (G (! c2))))",
+            "((G (! c2)) & ((G (! c0)) & (G (! c1))))",
+            "(((F c0) & ((F c1) & ((F c2) & (F c3)))) | ((G (F c0)) & (G (F c3))))",
+            "((G (! c2)) & ((G (! c0)) & (G (! c1))))",
+            "((G (! c0)) & (G (! c1)))",
+            "((F c0) & (F c1))",
+            "((F c1) & ((F c0) & ((F c2) & (F c3))))",
+            "((G (F c2)) & ((G (F c3)) & ((G (F c0)) & (G (F c1)))))"
+        ],
+        "pr_lang2ltl_accuracy_spot": 0.0
     },
     {
         "formula": "F(c0 & F(c1)) & G (! c2)",
@@ -596,6 +960,11 @@
         "description": "task9: seq_visit(pickaxe, lava) + glob_av(door)",
         "name": "task9",
         "utterance": "First visit the pickaxe, then visit the lava. Always avoid the door.",
+        "partial_formulas": [
+            "F c0",
+            "G (! c2)",
+            "F(c0 & F(c1))"
+        ],
         "paraphrased_utterances": [
             "Start by going to the mining tool, then proceed to the molten rock. Keep away from the doorway at all times.",
             "Head to the rock breaker first, then make your way to the magma. Do not go near the entrance door ever.",
@@ -663,7 +1032,47 @@
             "((G (! c2)) | (F (c0 & (F c1))))",
             "((F c2) & (F (c0 & (F c1))))",
             "(G (c0 -> (X (G (! c1)))))"
-        ]
+        ],
+        "lang2ltl_accuracy_spot": 0.1,
+        "gpt-5.2_accuracy_spot": 1.0,
+        "gpt52_cot_ltls": [
+            "(F(c0 & F(c1))) & G(!c2)",
+            "F(c0 & F c1) & G(!c2)",
+            "F(c0 & F(c1)) & G(!c2)",
+            "G !c2 & F (c0 & F c1)",
+            "G(!c2) & F(c0 & F(c1))",
+            "G(!c2) & F(c0 & F(c1))",
+            "(F(c0 & F c1)) & G(!c2)",
+            "F(c0 & F c1) & G(!c2)",
+            "F(c0 & F c1) & G(!c2)",
+            "G(!c2) & F(c0 & F(c1))"
+        ],
+        "gpt52_cot_accuracy_spot": 1.0,
+        "pr_lang2ltl_translations": [
+            "((G (! c0)) & (G (! c1)))",
+            "((F (c0 & (F c1))) | (G (! c2)))",
+            "((G (! c0)) & (G (! c1)))",
+            "((F c2) & ((F c0) & (F c1)))",
+            "(((! c1) U c0) & (F c1))",
+            "((F c2) & (F (c0 & (F c1))))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((F c0) & (F c1))",
+            "(F (c0 & (F c1)))",
+            "((G (F c2)) & ((G (F c0)) & (G (F c1))))"
+        ],
+        "symbolic_pr_lang2ltl_translations": [
+            "((G (! c0)) & (G (! c1)))",
+            "((F (c0 & (F c1))) | (G (! c2)))",
+            "((G (! c0)) & (G (! c1)))",
+            "((F c2) & ((F c0) & (F c1)))",
+            "(((! c1) U c0) & (F c1))",
+            "((F c2) & (F (c0 & (F c1))))",
+            "((F c0) & ((F c1) & (F c2)))",
+            "((F c0) & (F c1))",
+            "(F (c0 & (F c1)))",
+            "((G (F c2)) & ((G (F c0)) & (G (F c1))))"
+        ],
+        "pr_lang2ltl_accuracy_spot": 0.0
     },
     {
         "formula": "F(c0 & F(c1)) & G (! c2) & G(! c3)",
@@ -671,6 +1080,12 @@
         "description": "task10: seq_visit(pickaxe, lava) + glob_av(door) + glob_av(gem)",
         "name": "task10",
         "utterance": "First visit the pickaxe, then visit the lava. Always avoid the door and the gem.",
+        "partial_formulas": [
+            "F c0",
+            "G (! c2)",
+            "F(c0 & F(c1))",
+            "G (! c2) & G (! c3)"
+        ],
         "paraphrased_utterances": [
             "Go to the mining axe before heading to the molten rock. Steer clear of the doorway and the jewel at all times.",
             "Head over to the rock breaker first, then proceed to the magma. Continually keep away from the entrance and the crystal.",
@@ -742,6 +1157,46 @@
             "((F (c2 & (F (c0 & (F c1))))) & ((G (! c2)) & (G (! c3))))",
             "((G (! c1)) & ((G (! c0)) & ((G (! c2)) & (G (! c3)))))",
             "((G (! c2)) & (G (! c3)))"
-        ]
+        ],
+        "lang2ltl_accuracy_spot": 0.0,
+        "gpt-5.2_accuracy_spot": 0.8,
+        "gpt52_cot_ltls": [
+            "F c0 & G(c0 -> F c1) & G(!c2 & !c3)",
+            "F(c0 & F(c1)) & G(!c2) & G(!c3)",
+            "(F c0) & (G (c0 -> F c1)) & (G !c2) & (G !c3)",
+            "(G !c2) & F(c0 & F c1) & (G !c3)",
+            "F(c0) & (c0 -> F(c1)) & G(!c2) & G(!c3)",
+            "F(c0 & F c1) & G(!c3 & !c2)",
+            "G(!c2 & !c3) & F(c0 & F c1)",
+            "F(c0 & F c1) & G(!c2 & !c3)",
+            "(F(c1 & F c0)) & G(!c2) & F(c3)",
+            "G(!c2 & !c3) & F(c0 & F(c1))"
+        ],
+        "gpt52_cot_accuracy_spot": 0.6,
+        "pr_lang2ltl_translations": [
+            "(((! c2) U c0) & (((! c3) U c2) & (F c3)))",
+            "((F c0) & ((F c1) & ((F c2) & (F c3))))",
+            "((G (! c0)) & ((G (! c1)) & (G (! c2))))",
+            "((F c2) & ((F c0) & (F c1)))",
+            "(F (c0 & (F (c2 & (F c3)))))",
+            "((G (! c0)) & (G (! c1)))",
+            "((G (! c0)) & (G (! c1)))",
+            "((F (c0 & (F c1))) & (((! c2) U c3) & (F c2)))",
+            "(F (c1 & (F (c0 & (F (c2 & (F c3)))))))",
+            "((G (F c2)) & ((G (F c3)) & ((G (F c0)) & (G (F c1)))))"
+        ],
+        "symbolic_pr_lang2ltl_translations": [
+            "(((! c2) U c0) & (((! c3) U c2) & (F c3)))",
+            "((F c0) & ((F c1) & ((F c2) & (F c3))))",
+            "((G (! c0)) & ((G (! c1)) & (G (! c2))))",
+            "((F c2) & ((F c0) & (F c1)))",
+            "(F (c0 & (F (c2 & (F c3)))))",
+            "((G (! c0)) & (G (! c1)))",
+            "((G (! c0)) & (G (! c1)))",
+            "((F (c0 & (F c1))) & (((! c2) U c3) & (F c2)))",
+            "(F (c1 & (F (c0 & (F (c2 & (F c3)))))))",
+            "((G (F c2)) & ((G (F c3)) & ((G (F c0)) & (G (F c1)))))"
+        ],
+        "pr_lang2ltl_accuracy_spot": 0.0
     }
 ]
