@@ -95,7 +95,7 @@ if __name__ == "__main__":
     # Load LTL formulas
     LTL.load_data()
     data = LTL.get_data()
-    for d in data[2:args.formulas]:
+    for d in data[:args.formulas]:
         formula = d['formula']
         n_symbols = d['num_symbols']
         description = d['description']
@@ -177,27 +177,30 @@ if __name__ == "__main__":
         print(f"Plotting learning curves for: {description}")
         differentiator = 'ltl_tag' # if args.test_translations else 'run'
         aggregated_differentiator = 'ltl_tag' #if args.test_translations else None
-        palette = sns.color_palette("rocket_r", n_colors=len(ltls))
-        hue = 'avg_markovianity' if args.check_markovianity else None
-        min_index = 1 if args.add_baseline else 0
-        markovianity_values = dataframe[hue].dropna().unique()
-        markovianity_values.sort()
-        min_markovianity = markovianity_values[min_index] 
-        max_markovianity = markovianity_values[-1]
-        hue_norm = ((max_markovianity - ((max_markovianity - min_markovianity) * 2)), max_markovianity) if args.check_markovianity and len(markovianity_values) > 2 else None
-        print(f"Markovianity values: {markovianity_values}, min_markovianity: {min_markovianity}, max_markovianity: {max_markovianity}")
-        print(f'Hue: {hue}, Hue norm: {hue_norm}')
+        # palette = sns.color_palette("rocket_r", as_cmap=True) 
+        hue = None
+        hue_norm = None
+        if args.check_markovianity:
+            hue = 'avg_markovianity'
+            min_index = 1 if args.add_baseline else 0
+            markovianity_values = dataframe[hue].dropna().unique()
+            markovianity_values.sort()
+            min_markovianity = markovianity_values[min_index] 
+            max_markovianity = markovianity_values[-1]
+            hue_norm = ((max_markovianity - ((max_markovianity - min_markovianity) * 2)), max_markovianity) if len(markovianity_values) > 2 else None
+            print(f"Markovianity values: {markovianity_values}, min_markovianity: {min_markovianity}, max_markovianity: {max_markovianity}")
+            print(f'Hue: {hue}, Hue norm: {hue_norm}')
         # hue_norm = None if args.test_partial_formulas else hue_norm
         # plt.title(f"{args.algorithm} Learning Curve per {differentiator} - {description}")
         # Plot differentated learning curves
         sns.relplot(data=dataframe, kind="line", x="episode", y="reward_rolling_avg", 
-                    palette=palette, style=differentiator, col=differentiator, hue=hue, hue_norm=hue_norm)
+                    style=differentiator, col=differentiator, hue=hue, hue_norm=hue_norm)
         plt.savefig(dm.get_formula_folder() + f"{args.algorithm}_Learning_Curve_per_{differentiator}.png")
         plt.close()
         # plt.title(f"{args.algorithm} Learning Curve - {description}")
         # Plot aggregated learning curve
         sns.relplot(data=dataframe, kind="line", x="episode", y="reward_rolling_avg", 
-                    palette=palette, style=aggregated_differentiator, hue=hue, hue_norm=hue_norm)
+                    style=aggregated_differentiator, hue=hue, hue_norm=hue_norm)
         plt.savefig(dm.get_formula_folder() + f"{args.algorithm}_Learning_Curve.png")
         plt.close()
         # Save dataframe to CSV
