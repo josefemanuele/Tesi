@@ -137,7 +137,7 @@ if __name__ == "__main__":
             for r in range(1, args.runs + 1):
                 print(f"Experiment {r} / {args.runs}")
                 if args.algorithm == "DDQN":
-                    _, data = DDQN.train_ddqn(device=device, env=env, episodes=args.episodes, max_steps=args.steps)
+                    _, data = DDQN.train_ddqn(device=device, env=env, hidden=args.hidden, episodes=args.episodes, max_steps=args.steps, batch_size=args.minibatch_size)
                 elif args.algorithm == "PPO":
                     _, data = PPO.train_ppo(device=device, env=env, hidden=args.hidden, episodes=args.episodes, steps=args.steps, minibatch_size=args.minibatch_size, 
                             epochs=args.epochs, clip_epsilon=args.clip_epsilon, lr=args.lr, vf_coef=args.vf_coef, 
