@@ -89,7 +89,9 @@ class DQN(nn.Module):
                     x = cnn_feat
             else:
                 # just image tensor
-                img = state.float().unsqueeze(0)
+                img = state.float()
+                if img.dim() == 3:
+                    img = img.unsqueeze(0)
                 cnn_feat = self.cnn(img)
                 x = cnn_feat
             return self.fc(x)
