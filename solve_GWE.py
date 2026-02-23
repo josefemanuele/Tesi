@@ -48,7 +48,7 @@ if __name__ == "__main__":
     parser.add_argument("--vf_coef", type=float, default=0.5, help="Value function loss coefficient")
     parser.add_argument("--ent_coef", type=float, default=0.01, help="Entropy loss coefficient")
     parser.add_argument("--max_grad_norm", type=float, default=0.5, help="Maximum gradient norm for clipping")
-    parser.add_argument("--hidden", type=int, default=128, help="Hidden layer size for the model")
+    parser.add_argument("--hidden", type=int, default=64, help="Hidden layer size for the model")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     parser.add_argument("--test-translations", action='store_true', help="Test translated LTL formulas")
     parser.add_argument("--recompute-image-pkl", action='store_true', help="If set, recompute and overwrite image pkl files")

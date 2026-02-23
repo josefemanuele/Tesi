@@ -154,9 +154,9 @@ def stack_states(states_list, env: GridWorldEnv, device):
     else:
         return torch.stack([s for s in states_list]).to(device)
     
-def train_ddqn(device, env: GridWorldEnv, episodes=10_000, max_steps=256, 
+def train_ddqn(device, env: GridWorldEnv, hidden=64, episodes=10_000, max_steps=256, 
           batch_size=64, buffer_capacity=20_000, gamma=0.99, lr=1e-4,
-          start_train=1_000, target_update=1_000, hidden=128):
+          start_train=1_000, target_update=1_000):
     ''' Train DQN agent in the given environment.'''
     online = DQN(env, hidden=hidden).to(device)
     target = DQN(env, hidden=hidden).to(device)

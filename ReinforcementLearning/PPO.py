@@ -217,7 +217,7 @@ def stack_states(states_list, env: GridWorldEnv, device):
     else:
         return torch.stack([s for s in states_list]).to(device)
 
-def train_ppo(device, env: GridWorldEnv, hidden=128,
+def train_ppo(device, env: GridWorldEnv, hidden=64,
               episodes=10_000, steps=256, minibatch_size=64, epochs=4, 
               gamma=0.99, gae_lambda=0.95, clip_epsilon=0.2, lr=3e-4, 
               vf_coef=0.5, ent_coef=0.01, max_grad_norm=0.5):
