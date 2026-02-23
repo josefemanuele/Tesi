@@ -195,7 +195,7 @@ def train_ddqn(device, env: GridWorldEnv, hidden=64, episodes=10_000, max_steps=
             buffer.push(state, action, reward, next_state, terminal)
             state = next_state
             # optimize
-            if len(buffer) >= max(64, start_train):
+            if len(buffer) >= max(batch_size, start_train):
                 states_b, actions_b, rewards_b, next_states_b, dones_b = buffer.sample(batch_size)
                 states_t = stack_states(states_b, env, device)
                 next_states_t = stack_states(next_states_b, env, device)
