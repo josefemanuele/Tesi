@@ -41,7 +41,7 @@ if __name__ == "__main__":
     parser.add_argument("--runs", type=int, default=3, help="Experiment runs per formula")
     parser.add_argument("--episodes", type=int, default=3_000, help="Number of episodes to train")
     parser.add_argument("--steps", type=int, default=256, help="Number of steps per rollout")
-    parser.add_argument("--minibatch_size", type=int, default=64, help="Minibatch size for PPO updates")
+    parser.add_argument("--batch", type=int, default=64, help="Batch size for algorithm updates")
     parser.add_argument("--epochs", type=int, default=4, help="Number of epochs per rollout")
     parser.add_argument("--clip_epsilon", type=float, default=0.2, help="Clipping epsilon for PPO")
     parser.add_argument("--lr", type=float, default=3e-4, help="Learning rate for optimizer")
@@ -80,7 +80,7 @@ if __name__ == "__main__":
         f.write(f"# Use external automaton: {external_automaton}\n")
         f.write(f"# Number of formulas: {args.formulas}\n")
         f.write(f"# Runs per formula: {args.runs}\n")
-        f.write(f"# Training episodes: {args.episodes}, steps per rollout: {args.steps}, minibatch size: {args.minibatch_size}\n")
+        f.write(f"# Training episodes: {args.episodes}, steps per rollout: {args.steps}, batch size: {args.batch}\n")
         f.write(f"# epochs: {args.epochs}, clip_epsilon: {args.clip_epsilon}, lr: {args.lr}\n") 
         f.write(f"# vf_coef: {args.vf_coef}, ent_coef: {args.ent_coef}, max_grad_norm: {args.max_grad_norm}\n")
         f.write(f"# hidden layer size: {args.hidden}\n")
@@ -137,9 +137,9 @@ if __name__ == "__main__":
             for r in range(1, args.runs + 1):
                 print(f"Experiment {r} / {args.runs}")
                 if args.algorithm == "DDQN":
-                    _, data = DDQN.train_ddqn(device=device, env=env, hidden=args.hidden, episodes=args.episodes, max_steps=args.steps, batch_size=args.minibatch_size)
+                    _, data = DDQN.train_ddqn(device=device, env=env, hidden=args.hidden, episodes=args.episodes, max_steps=args.steps, batch_size=args.batch)
                 elif args.algorithm == "PPO":
-                    _, data = PPO.train_ppo(device=device, env=env, hidden=args.hidden, episodes=args.episodes, steps=args.steps, minibatch_size=args.minibatch_size, 
+                    _, data = PPO.train_ppo(device=device, env=env, hidden=args.hidden, episodes=args.episodes, steps=args.steps, minibatch_size=args.batch, 
                             epochs=args.epochs, clip_epsilon=args.clip_epsilon, lr=args.lr, vf_coef=args.vf_coef, 
                             ent_coef=args.ent_coef, max_grad_norm=args.max_grad_norm)
                 else:
