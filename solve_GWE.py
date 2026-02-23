@@ -209,3 +209,4 @@ if __name__ == "__main__":
     end_time = datetime.now().strftime("%Y-%m-%d.%H:%M:%S")
     with open(dm.get_experiment_folder() + "experiment_parameters.txt", "a") as f:
         f.write(f"# end_time: {end_time}\n")
+    print(f"Saved data into: {dm.get_experiment_folder()}")
