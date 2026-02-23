@@ -106,10 +106,10 @@ if __name__ == "__main__":
         # Dataframe collecting data from all runs
         dfs = list()
         ltls = {"upper_bound": formula}
-        # if args.test_translations:
-        #     translated_ltls = d.get("filtered_symbolic_lang2ltl_translations", [])
-        #     ltls.extend(unique_ordered_list(translated_ltls))
-        #     print(f"Testing translated LTL formulas: {list(enumerate(ltls))}")
+        if args.test_translations:
+            translated_ltls = d.get("filtered_symbolic_lang2ltl_translations", [])
+            ltls.update({f"translation_{n}": translated_ltl for n, translated_ltl in enumerate(translated_ltls)})
+            print(f"Testing translated LTL formulas: {list(enumerate(ltls))}")
         if args.test_partial_formulas:
             partial_formulas = d.get("partial_formulas", [])
             ltls.update({f"partial_{n}": partial_formula for n, partial_formula in enumerate(partial_formulas)})
