@@ -18,10 +18,6 @@ from datetime import datetime
 import LTL
 from utils.utils import unique_ordered_list
 
-dm = DirectoryManager()
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"Using device: {device}")
-
 def set_seed(seed: int):
     """Set random seed for reproducibility."""
     random.seed(seed)
@@ -55,7 +51,13 @@ if __name__ == "__main__":
     parser.add_argument("--check-markovianity", action='store_true', help="If set, check Markovianity of the environment")
     parser.add_argument("--add-baseline", action='store_true', help="If set, add baseline to the experiment")
     parser.add_argument("--test-partial-formulas", action='store_true', help="If set, test partial LTL formulas")
+    parser.add_argument("--one", action='store_true', help="If set, use cuda device:1")
     args = parser.parse_args()
+    dm = DirectoryManager()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if args.one:
+        device = torch.device("cuda:1")
+    print(f"Using device: {device}")
     use_automaton = not args.no_automaton
     external_automaton = args.external_automaton
     if external_automaton:

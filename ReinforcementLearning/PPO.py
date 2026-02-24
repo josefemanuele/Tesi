@@ -225,7 +225,6 @@ def train_ppo(device, env: GridWorldEnv, hidden=64,
     # TODO: Implement a better early stop strategy.
     # TODO: Handle data with Pandas dataframe.
     model = ActorCritic(env, hidden=hidden).to(device)
-    model= nn.DataParallel(model)
     optimizer = optim.Adam(model.parameters(), lr=lr)
     buffer = RolloutBuffer()
     data = list()

@@ -159,9 +159,7 @@ def train_ddqn(device, env: GridWorldEnv, hidden=64, episodes=10_000, max_steps=
           start_train=1_000, target_update=1_000):
     ''' Train DQN agent in the given environment.'''
     online = DQN(env, hidden=hidden).to(device)
-    online= nn.DataParallel(online)
     target = DQN(env, hidden=hidden).to(device)
-    target= nn.DataParallel(target)
     target.load_state_dict(online.state_dict())
     optimizer = optim.Adam(online.parameters(), lr=lr)
     buffer = ReplayBuffer(capacity=buffer_capacity)
