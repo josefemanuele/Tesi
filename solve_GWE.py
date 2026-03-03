@@ -38,6 +38,7 @@ if __name__ == "__main__":
     parser.add_argument("--episodes", type=int, default=3_000, help="Number of episodes to train")
     parser.add_argument("--steps", type=int, default=256, help="Number of steps per rollout")
     parser.add_argument("--batch", type=int, default=64, help="Batch size for algorithm updates")
+    parser.add_argument("--buffer", type=int, default=10000, help="Replay buffer capacity for DDQN")
     parser.add_argument("--epochs", type=int, default=4, help="Number of epochs per rollout")
     parser.add_argument("--clip_epsilon", type=float, default=0.2, help="Clipping epsilon for PPO")
     parser.add_argument("--lr", type=float, default=3e-4, help="Learning rate for optimizer")
@@ -139,7 +140,7 @@ if __name__ == "__main__":
             for r in range(1, args.runs + 1):
                 print(f"Experiment {r} / {args.runs}")
                 if args.algorithm == "DDQN":
-                    _, data = DDQN.train_ddqn(device=device, env=env, hidden=args.hidden, episodes=args.episodes, max_steps=args.steps, batch_size=args.batch)
+                    _, data = DDQN.train_ddqn(device=device, env=env, hidden=args.hidden, episodes=args.episodes, max_steps=args.steps, batch_size=args.batch, buffer_capacity=args.buffer)
                 elif args.algorithm == "PPO":
                     _, data = PPO.train_ppo(device=device, env=env, hidden=args.hidden, episodes=args.episodes, steps=args.steps, minibatch_size=args.batch, 
                             epochs=args.epochs, clip_epsilon=args.clip_epsilon, lr=args.lr, vf_coef=args.vf_coef, 
