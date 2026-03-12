@@ -158,7 +158,7 @@ if __name__ == "__main__":
                 # Plot RNN training loss
                 if ltl_tag == "gru":
                     df = pd.DataFrame(rnn_losses, columns=["mse_loss"])
-                    plt.plot(df.rolling(window=6).mean())
+                    plt.plot(df.rolling(window=10).mean())
                     plt.title("RNN Training Loss")
                     plt.xlabel("Epoch")
                     plt.ylabel("MSE Loss")
