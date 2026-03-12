@@ -6,6 +6,9 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.distributions import Categorical
 from NeuralRewardMachines.RL.Env.Environment import GridWorldEnv
+import ReinforcementLearning.RNN as RNN
+from torch.utils.data import DataLoader
+import matplotlib.pyplot as plt
 
 class RolloutBuffer:
     """Buffer for storing rollout data during on-policy collection."""
@@ -17,8 +20,9 @@ class RolloutBuffer:
         self.values = []
         self.dones = []
         self.truncateds = []
+        self.rnn_states = []
 
-    def push(self, state, action, reward, log_prob, value, done, truncated):
+    def push(self, state, action, reward, log_prob, value, done, truncated, rnn_latent=None):
         self.states.append(state)
         self.actions.append(action)
         self.rewards.append(reward)
@@ -26,6 +30,7 @@ class RolloutBuffer:
         self.values.append(value)
         self.dones.append(done)
         self.truncateds.append(truncated)
+        self.rnn_states.append(rnn_latent)
 
     def clear(self):
         self.states = []
@@ -35,16 +40,18 @@ class RolloutBuffer:
         self.values = []
         self.dones = []
         self.truncateds = []
+        self.rnn_states = []
 
     def __len__(self):
         return len(self.rewards)
 
 class ActorCritic(nn.Module):
     """Actor-Critic network for PPO."""
-    def __init__(self, env: GridWorldEnv, hidden=128):
+    def __init__(self, env: GridWorldEnv, hidden=128, rnn_hidden_size=0):
         super().__init__()
         self.state_type = env.state_type
         self.use_dfa = env.use_dfa_state
+        self.rnn_hidden_size = rnn_hidden_size
         automaton = env.external_automaton if hasattr(env, 'external_automaton') else env.automaton
         if self.state_type == "image":
             # CNN to extract features from 3x64x64 images
@@ -67,7 +74,7 @@ class ActorCritic(nn.Module):
                 dfa_dim = 0
             # Actor network
             self.actor = nn.Sequential(
-                nn.Linear(cnn_out + dfa_dim, hidden),
+                nn.Linear(cnn_out + dfa_dim + rnn_hidden_size, hidden),
                 nn.ReLU(),
                 nn.Linear(hidden, hidden),
                 nn.ReLU(),
@@ -75,7 +82,7 @@ class ActorCritic(nn.Module):
             )
             # Critic network
             self.critic = nn.Sequential(
-                nn.Linear(cnn_out + dfa_dim, hidden),
+                nn.Linear(cnn_out + dfa_dim + rnn_hidden_size, hidden),
                 nn.ReLU(),
                 nn.Linear(hidden, hidden),
                 nn.ReLU(),
@@ -88,7 +95,7 @@ class ActorCritic(nn.Module):
                 obs_dim += automaton.num_of_states
             # Actor network
             self.actor = nn.Sequential(
-                nn.Linear(obs_dim, hidden),
+                nn.Linear(obs_dim + rnn_hidden_size, hidden),
                 nn.ReLU(),
                 nn.Linear(hidden, hidden),
                 nn.ReLU(),
@@ -96,14 +103,14 @@ class ActorCritic(nn.Module):
             )
             # Critic network
             self.critic = nn.Sequential(
-                nn.Linear(obs_dim, hidden),
+                nn.Linear(obs_dim + rnn_hidden_size, hidden),
                 nn.ReLU(),
                 nn.Linear(hidden, hidden),
                 nn.ReLU(),
                 nn.Linear(hidden, 1)
             )
 
-    def forward(self, state):
+    def forward(self, state, rnn_latent=None):
         """Forward pass through the network.
         Returns:
             logits: action logits from actor
@@ -134,13 +141,18 @@ class ActorCritic(nn.Module):
             x = state.float()
             if x.dim() == 1:
                 x = x.unsqueeze(0)
+        if rnn_latent is not None:
+            if rnn_latent.dim() == 1:
+                rnn_latent = rnn_latent.unsqueeze(0)
+            rnn_latent = rnn_latent.expand(x.shape[0], -1)
+            x = torch.cat([x, rnn_latent], dim=1)
         logits = self.actor(x)
         value = self.critic(x)
         return logits, value
 
-    def get_action_and_value(self, state):
+    def get_action_and_value(self, state, rnn_latent=None):
         """Sample action from policy and get value estimate."""
-        logits, value = self.forward(state)
+        logits, value = self.forward(state, rnn_latent)
         probs = F.softmax(logits, dim=-1)
         dist = Categorical(probs)
         action = dist.sample()
@@ -149,7 +161,7 @@ class ActorCritic(nn.Module):
         # print(f"State: {state} | probs: {probs} | action: {action.item()} | value: {value.item():.2f} | log_prob: {log_prob.item():.2f} | entropy: {entropy.item():.2f}")
         return action.item(), log_prob.item(), value.item(), entropy.item()
 
-def obs_to_state(obs, env: GridWorldEnv, device):
+def obs_to_state(obs, env: GridWorldEnv, device, rnn_state=None):
     """Convert environment observation to tensor format."""
     automaton = env.external_automaton if hasattr(env, 'external_automaton') else env.automaton
     if env.state_type == "symbolic":
@@ -220,14 +232,24 @@ def stack_states(states_list, env: GridWorldEnv, device):
 def train_ppo(device, env: GridWorldEnv, hidden=64,
               episodes=10_000, steps=256, minibatch_size=64, epochs=4, 
               gamma=0.99, gae_lambda=0.95, clip_epsilon=0.2, lr=3e-4, 
-              vf_coef=0.5, ent_coef=0.01, max_grad_norm=0.5):
+              vf_coef=0.5, ent_coef=0.01, max_grad_norm=0.5, use_rnn=False):
     """Train PPO agent in the given environment."""
     # TODO: Implement a better early stop strategy.
     # TODO: Handle data with Pandas dataframe.
-    model = ActorCritic(env, hidden=hidden).to(device)
+    rnn_hidden = 32 if use_rnn else 0
+    model = ActorCritic(env, hidden=hidden, rnn_hidden_size=rnn_hidden).to(device)
     optimizer = optim.Adam(model.parameters(), lr=lr)
     buffer = RolloutBuffer()
     data = list()
+    rnn_state = None
+    rnn_losses = None
+    if use_rnn:
+        rnn = RNN.RNN(hidden_size=rnn_hidden).to(device)
+        rnn_optimizer = optim.Adam(rnn.parameters(), lr=1e-3)
+        criterion = nn.MSELoss()
+        rnn_losses = []
+        reward_trajectories = []
+        rnn_window = 5
     # Start training loop
     episode = 0
     total_steps = 0
@@ -235,10 +257,15 @@ def train_ppo(device, env: GridWorldEnv, hidden=64,
         episode_length = 0
         episode_reward = 0.0
         episode_rewards = [] # To calculate average reward per training iteration
+        if use_rnn:
+            reward_trajectory = RNN.RewardTrajectory(rnn_window)
+            traj = torch.tensor(reward_trajectory.get_trajectory(), dtype=torch.float32, device=device).unsqueeze(0).unsqueeze(-1)
+            with torch.no_grad():
+                _, rnn_state = rnn(traj)
         done = False
         truncated = False
         obs, _, _ = env.reset()
-        state = obs_to_state(obs, env, device)
+        state = obs_to_state(obs, env, device, rnn_state)
         # Collect rollout
         for step in range(steps):
             if done or truncated:
@@ -246,19 +273,30 @@ def train_ppo(device, env: GridWorldEnv, hidden=64,
                 episode_length = 0
                 episode_reward = 0.0
                 obs, _, _ = env.reset()
-                state = obs_to_state(obs, env, device)
+                if use_rnn:
+                    reward_trajectory = RNN.RewardTrajectory(rnn_window)
+                    traj = torch.tensor(reward_trajectory.get_trajectory(), dtype=torch.float32, device=device).unsqueeze(0).unsqueeze(-1)
+                    with torch.no_grad():
+                        _, rnn_state = rnn(traj)
+                state = obs_to_state(obs, env, device, rnn_state)
             # Evaluate action, log_prob, and value
             with torch.no_grad():
-                action, log_prob, value, _ = model.get_action_and_value(state)
+                action, log_prob, value, _ = model.get_action_and_value(state, rnn_state)
             # Take action in environment
             next_obs, reward, done, truncated, _ = env.step(action)
             episode_reward += reward
             episode_length += 1
             total_steps += 1
+            # Update RNN state
+            if use_rnn:
+                reward_trajectory.add(episode_reward / 100.0)  # Normalize reward for RNN
+                traj = torch.tensor(reward_trajectory.get_trajectory(), dtype=torch.float32, device=device).unsqueeze(0).unsqueeze(-1)
+                with torch.no_grad():
+                    _, rnn_state = rnn(traj)
             # Store transition
-            buffer.push(state, action, reward, log_prob, value, done, truncated)
+            buffer.push(state, action, reward, log_prob, value, done, truncated, rnn_state)
             # Update state
-            next_state = obs_to_state(next_obs, env, device)
+            next_state = obs_to_state(next_obs, env, device, rnn_state)
             state = next_state
             # Check if episode ended
             if done or truncated:
@@ -266,6 +304,9 @@ def train_ppo(device, env: GridWorldEnv, hidden=64,
                 episode_rewards.append(episode_reward)
                 # Store episode data
                 data.append((episode, episode_reward, episode_length, done, truncated, total_steps))
+                # Store reward trajectory
+                if use_rnn:
+                    reward_trajectories.append(reward_trajectory.get_trajectory())
                 # # If we've collected enough steps or reached episode limit, break to train
                 # if len(buffer) >= minibatch_size or episode >= episodes:
                 # #     print(f"Collected {len(buffer)} steps, proceeding to update.")
@@ -275,7 +316,7 @@ def train_ppo(device, env: GridWorldEnv, hidden=64,
             break
         # Compute advantages and returns
         with torch.no_grad():
-            _, next_value = model.forward(state)
+            _, next_value = model.forward(state, rnn_state)
             next_value = next_value.item()
         advantages, returns = compute_gae(
             buffer.rewards, buffer.values, buffer.dones, buffer.truncateds,
@@ -295,6 +336,20 @@ def train_ppo(device, env: GridWorldEnv, hidden=64,
         # total_value_loss = 0
         # total_entropy = 0
         # n_updates = 0
+        # RRN on rewards.
+        if use_rnn:
+            dataset = RNN.RewardTrajectoryDataset(reward_trajectories, window=rnn_window)
+            loader = DataLoader(dataset, batch_size=32, shuffle=True)
+            for epoch in range(1):
+                for seq, target in loader:
+                    rnn_optimizer.zero_grad()
+                    pred, _ = rnn(seq)
+                    if len(target) == 1:
+                        target = target.unsqueeze(0)
+                    loss = criterion(pred, target)
+                    loss.backward()
+                    rnn_optimizer.step()
+                rnn_losses.append(loss.item())
         for epoch in range(epochs):
             # Shuffle indices
             indices = np.arange(len(buffer))
@@ -311,7 +366,11 @@ def train_ppo(device, env: GridWorldEnv, hidden=64,
                 batch_returns = returns_t[batch_indices]
                 # Forward pass
                 states_stacked = stack_states(batch_states, env, device)
-                logits, values = model.forward(states_stacked)
+                if use_rnn:
+                    batch_rnn_states = torch.cat([buffer.rnn_states[i] for i in batch_indices], dim=0).to(device)
+                else:
+                    batch_rnn_states = None
+                logits, values = model.forward(states_stacked, batch_rnn_states)
                 # Compute policy loss
                 probs = F.softmax(logits, dim=-1)
                 dist = Categorical(probs)
@@ -358,4 +417,4 @@ def train_ppo(device, env: GridWorldEnv, hidden=64,
     # Save model
     # torch.save(model.state_dict(), model_file)
     # print(f"\nTraining completed! Model saved to {model_file}")
-    return model, data
+    return model, data, rnn_losses

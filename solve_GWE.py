@@ -53,6 +53,7 @@ if __name__ == "__main__":
     parser.add_argument("--add-baseline", action='store_true', help="If set, add baseline to the experiment")
     parser.add_argument("--test-partial-formulas", action='store_true', help="If set, test partial LTL formulas")
     parser.add_argument("--one", action='store_true', help="If set, use cuda device:1")
+    parser.add_argument("--gru", action='store_true', help="If set, use GRU")
     args = parser.parse_args()
     dm = DirectoryManager()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -70,6 +71,8 @@ if __name__ == "__main__":
         external_automaton = True
     if args.check_markovianity:
         external_automaton = True
+    if args.gru:
+        use_automaton = False
     start_time = datetime.now().strftime("%Y-%m-%d.%H:%M:%S")
     # Log experiment parameters
     with open(dm.get_experiment_folder() + "experiment_parameters.txt", "w") as f:
@@ -81,6 +84,7 @@ if __name__ == "__main__":
         f.write(f"# Render mode: {args.render_mode}\n")
         f.write(f"# Use automaton states: {use_automaton}\n")
         f.write(f"# Use external automaton: {external_automaton}\n")
+        f.write(f"# GRU: {args.gru}\n")
         f.write(f"# Number of formulas: {args.formulas}\n")
         f.write(f"# Runs per formula: {args.runs}\n")
         f.write(f"# Training episodes: {args.episodes}, steps per rollout: {args.steps}, batch size: {args.batch}\n")
@@ -108,7 +112,7 @@ if __name__ == "__main__":
         print(f"Running experiments for: {description}")
         # Dataframe collecting data from all runs
         dfs = list()
-        ltls = {"upper_bound": formula}
+        ltls = {"gru": formula}
         if args.test_translations:
             translated_ltls = d.get("filtered_symbolic_lang2ltl_translations", [])
             ltls.update({f"translation_{n}": translated_ltl for n, translated_ltl in enumerate(translated_ltls)})
@@ -142,9 +146,21 @@ if __name__ == "__main__":
                 if args.algorithm == "DDQN":
                     _, data = DDQN.train_ddqn(device=device, env=env, hidden=args.hidden, episodes=args.episodes, max_steps=args.steps, batch_size=args.batch, buffer_capacity=args.buffer)
                 elif args.algorithm == "PPO":
-                    _, data = PPO.train_ppo(device=device, env=env, hidden=args.hidden, episodes=args.episodes, steps=args.steps, minibatch_size=args.batch, 
+                    if ltl_tag == "gru":
+                        use_rnn = True
+                    else:
+                        use_rnn = False
+                    _, data, rnn_losses = PPO.train_ppo(device=device, env=env, hidden=args.hidden, episodes=args.episodes, steps=args.steps, minibatch_size=args.batch, 
                             epochs=args.epochs, clip_epsilon=args.clip_epsilon, lr=args.lr, vf_coef=args.vf_coef, 
-                            ent_coef=args.ent_coef, max_grad_norm=args.max_grad_norm)
+                            ent_coef=args.ent_coef, max_grad_norm=args.max_grad_norm, use_rnn=use_rnn)
+                    if ltl_tag == "gru":
+                        df = pd.DataFrame(rnn_losses, columns=["mse_loss"])
+                        plt.plot(df.rolling(window=6).mean())
+                        plt.title("RNN Training Loss")
+                        plt.xlabel("Epoch")
+                        plt.ylabel("MSE Loss")
+                        plt.savefig(dm.get_formula_folder() + f"RNN_MSE_Loss_{ltl_tag}_r_{r}.png")
+                        plt.close()
                 else:
                     raise ValueError(f"ERROR: Algorithm {args.algorithm} not supported.")
                 # Add run column to data
@@ -181,7 +197,7 @@ if __name__ == "__main__":
         differentiator = 'ltl_tag' # if args.test_translations else 'run'
         aggregated_differentiator = 'ltl_tag' #if args.test_translations else None
         # palette = sns.color_palette("rocket_r", as_cmap=True) 
-        hue = None
+        hue = 'ltl_tag'
         hue_norm = None
         if args.check_markovianity:
             hue = 'avg_markovianity'
