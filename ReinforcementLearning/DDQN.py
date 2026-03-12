@@ -249,7 +249,7 @@ def train_ddqn(device, env: GridWorldEnv, hidden=64, episodes=10_000, max_steps=
                 loss.backward()
                 optimizer.step()
                 if use_rnn and len(reward_trajectories) > 0:
-                    dataset = RNN.RewardTrajectoryDataset(reward_trajectories, window=rnn_window)
+                    dataset = RNN.RewardTrajectoryDataset(reward_trajectories, window=rnn_window, device=device)
                     if len(dataset) > 0:
                         loader = DataLoader(dataset, batch_size=32, shuffle=True)
                         for epoch in range(4):
