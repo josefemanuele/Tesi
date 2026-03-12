@@ -19,7 +19,7 @@ class RewardTrajectory:
 
 class RewardTrajectoryDataset(Dataset):
 
-    def __init__(self, trajectories, window=10):
+    def __init__(self, trajectories, window=10, device='cpu'):
         self.X = []
         self.y = []
         for traj in trajectories:
@@ -30,8 +30,8 @@ class RewardTrajectoryDataset(Dataset):
                 target = traj[i+window]
                 self.X.append(seq)
                 self.y.append(target)
-        self.X = torch.tensor(self.X, dtype=torch.float32).unsqueeze(-1)
-        self.y = torch.tensor(self.y, dtype=torch.float32)
+        self.X = torch.tensor(self.X, dtype=torch.float32, device=device).unsqueeze(-1)
+        self.y = torch.tensor(self.y, dtype=torch.float32, device=device)
 
     def __len__(self):
         return len(self.X)
