@@ -143,26 +143,27 @@ if __name__ == "__main__":
             runs = list()
             for r in range(1, args.runs + 1):
                 print(f"Experiment {r} / {args.runs}")
+                if ltl_tag == "gru":
+                    use_rnn = True
+                else:
+                    use_rnn = False
                 if args.algorithm == "DDQN":
-                    _, data = DDQN.train_ddqn(device=device, env=env, hidden=args.hidden, episodes=args.episodes, max_steps=args.steps, batch_size=args.batch, buffer_capacity=args.buffer)
+                    _, data, rnn_losses = DDQN.train_ddqn(device=device, env=env, hidden=args.hidden, episodes=args.episodes, max_steps=args.steps, batch_size=args.batch, buffer_capacity=args.buffer, use_rnn=use_rnn)
                 elif args.algorithm == "PPO":
-                    if ltl_tag == "gru":
-                        use_rnn = True
-                    else:
-                        use_rnn = False
                     _, data, rnn_losses = PPO.train_ppo(device=device, env=env, hidden=args.hidden, episodes=args.episodes, steps=args.steps, minibatch_size=args.batch, 
                             epochs=args.epochs, clip_epsilon=args.clip_epsilon, lr=args.lr, vf_coef=args.vf_coef, 
                             ent_coef=args.ent_coef, max_grad_norm=args.max_grad_norm, use_rnn=use_rnn)
-                    if ltl_tag == "gru":
-                        df = pd.DataFrame(rnn_losses, columns=["mse_loss"])
-                        plt.plot(df.rolling(window=6).mean())
-                        plt.title("RNN Training Loss")
-                        plt.xlabel("Epoch")
-                        plt.ylabel("MSE Loss")
-                        plt.savefig(dm.get_formula_folder() + f"RNN_MSE_Loss_{ltl_tag}_r_{r}.png")
-                        plt.close()
                 else:
                     raise ValueError(f"ERROR: Algorithm {args.algorithm} not supported.")
+                # Plot RNN training loss
+                if ltl_tag == "gru":
+                    df = pd.DataFrame(rnn_losses, columns=["mse_loss"])
+                    plt.plot(df.rolling(window=6).mean())
+                    plt.title("RNN Training Loss")
+                    plt.xlabel("Epoch")
+                    plt.ylabel("MSE Loss")
+                    plt.savefig(dm.get_formula_folder() + f"RNN_MSE_Loss_{ltl_tag}_r_{r}.png")
+                    plt.close()
                 # Add run column to data
                 df = pd.DataFrame(data, columns=["episode", "episode_reward", "episode_length", "done", "truncated", "total_steps"])
                 df["reward_rolling_avg"] = df["episode_reward"].rolling(window=100, min_periods=1).mean()

@@ -8,27 +8,30 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from NeuralRewardMachines.RL.Env.Environment import GridWorldEnv
+import ReinforcementLearning.RNN as RNN
+from torch.utils.data import DataLoader
 
 class ReplayBuffer:
     def __init__(self, capacity=10000):
         self.buffer = collections.deque(maxlen=capacity)
 
-    def push(self, state, action, reward, next_state, done):
-        self.buffer.append((state, action, reward, next_state, done))
+    def push(self, state, action, reward, next_state, done, rnn_state=None, next_rnn_state=None):
+        self.buffer.append((state, action, reward, next_state, done, rnn_state, next_rnn_state))
 
     def sample(self, batch_size):
         batch = random.sample(self.buffer, batch_size)
-        states, actions, rewards, next_states, dones = zip(*batch)
-        return states, np.array(actions), np.array(rewards, dtype=np.float32), next_states, np.array(dones, dtype=np.uint8)
+        states, actions, rewards, next_states, dones, rnn_states, next_rnn_states = zip(*batch)
+        return states, np.array(actions), np.array(rewards, dtype=np.float32), next_states, np.array(dones, dtype=np.uint8), rnn_states, next_rnn_states
 
     def __len__(self):
         return len(self.buffer)
 
 class DQN(nn.Module):
-    def __init__(self, env: GridWorldEnv, hidden=128):
+    def __init__(self, env: GridWorldEnv, hidden=128, rnn_hidden_size=0):
         super().__init__()
         self.state_type = env.state_type
         self.use_dfa = env.use_dfa_state
+        self.rnn_hidden_size = rnn_hidden_size
         automaton = env.external_automaton if hasattr(env, 'external_automaton') else env.automaton
         if self.state_type == "image":
             # small CNN to extract features from 3x64x64 images
@@ -50,7 +53,7 @@ class DQN(nn.Module):
             else:
                 dfa_dim = 0
             self.fc = nn.Sequential(
-                nn.Linear(cnn_out + dfa_dim, hidden),
+                nn.Linear(cnn_out + dfa_dim + rnn_hidden_size, hidden),
                 nn.ReLU(),
                 nn.Linear(hidden, hidden),
                 nn.ReLU(),
@@ -62,14 +65,14 @@ class DQN(nn.Module):
             if self.use_dfa:
                 obs_dim += automaton.num_of_states
             self.fc = nn.Sequential(
-                nn.Linear(obs_dim, hidden),
+                nn.Linear(obs_dim + rnn_hidden_size, hidden),
                 nn.ReLU(),
                 nn.Linear(hidden, hidden),
                 nn.ReLU(),
                 nn.Linear(hidden, env.action_space.n),
             )
 
-    def forward(self, state):
+    def forward(self, state, rnn_state=None):
         # state can be:
         #  - symbolic: single tensor vector
         #  - image: tuple (one_hot_dfa_tensor, image_tensor) or just image_tensor if not using dfa
@@ -94,12 +97,17 @@ class DQN(nn.Module):
                     img = img.unsqueeze(0)
                 cnn_feat = self.cnn(img)
                 x = cnn_feat
-            return self.fc(x)
         else:
             x = state.float()
             if x.dim() == 1:
                 x = x.unsqueeze(0)
-            return self.fc(x)
+        if rnn_state is not None:
+            if rnn_state.dim() == 1:
+                rnn_state = rnn_state.unsqueeze(0)
+            if rnn_state.shape[0] != x.shape[0]:
+                rnn_state = rnn_state.expand(x.shape[0], -1)
+            x = torch.cat([x, rnn_state], dim=1)
+        return self.fc(x)
 
 def obs_to_state(obs, env: GridWorldEnv, device):
     automaton = env.external_automaton if hasattr(env, 'external_automaton') else env.automaton
@@ -156,14 +164,24 @@ def stack_states(states_list, env: GridWorldEnv, device):
     
 def train_ddqn(device, env: GridWorldEnv, hidden=64, episodes=10_000, max_steps=256, 
           batch_size=64, buffer_capacity=20_000, gamma=0.99, lr=1e-4,
-          start_train=1_000, target_update=1_000):
+        start_train=1_000, target_update=1_000, use_rnn=False):
     ''' Train DQN agent in the given environment.'''
-    online = DQN(env, hidden=hidden).to(device)
-    target = DQN(env, hidden=hidden).to(device)
+    rnn_hidden = 32 if use_rnn else 0
+    online = DQN(env, hidden=hidden, rnn_hidden_size=rnn_hidden).to(device)
+    target = DQN(env, hidden=hidden, rnn_hidden_size=rnn_hidden).to(device)
     target.load_state_dict(online.state_dict())
     optimizer = optim.Adam(online.parameters(), lr=lr)
     buffer = ReplayBuffer(capacity=buffer_capacity)
     data = list()
+    rnn_state = None
+    rnn_losses = None
+    if use_rnn:
+      rnn = RNN.RNN(hidden_size=rnn_hidden).to(device)
+      rnn_optimizer = optim.Adam(rnn.parameters(), lr=1e-3)
+      criterion = nn.MSELoss()
+      rnn_losses = []
+      reward_trajectories = []
+      rnn_window = 5
     # Start training loop
     total_steps = 0
     eps_start, eps_end, eps_decay = 1.0, 0.05, 30000
@@ -173,6 +191,11 @@ def train_ddqn(device, env: GridWorldEnv, hidden=64, episodes=10_000, max_steps=
     # logging_rate = int(episodes / 20) # log every 5% of episodes
     for ep in range(1, episodes + 1):
         obs, _, _ = env.reset()
+        if use_rnn:
+            reward_trajectory = RNN.RewardTrajectory(rnn_window)
+            traj = torch.tensor(reward_trajectory.get_trajectory(), dtype=torch.float32, device=device).unsqueeze(0).unsqueeze(-1)
+            with torch.no_grad():
+                _, rnn_state = rnn(traj)
         state = obs_to_state(obs, env, device)
         episode_reward = 0.0
         done = False
@@ -185,35 +208,65 @@ def train_ddqn(device, env: GridWorldEnv, hidden=64, episodes=10_000, max_steps=
                 action = env.action_space.sample()
             else:
                 with torch.no_grad():
-                    qvals = online(state)
+                    qvals = online(state, rnn_state)
                     action = int(torch.argmax(qvals, dim=1).cpu().numpy()[0])
             # take step and store in buffer
             next_obs, reward, done, truncated, _ = env.step(action)
             episode_reward += reward
             next_state = obs_to_state(next_obs, env, device)
             terminal = bool(done or truncated)
-            buffer.push(state, action, reward, next_state, terminal)
+            next_rnn_state = None
+            if use_rnn:
+                reward_trajectory.add(episode_reward / 100.0)
+                traj = torch.tensor(reward_trajectory.get_trajectory(), dtype=torch.float32, device=device).unsqueeze(0).unsqueeze(-1)
+                with torch.no_grad():
+                    _, next_rnn_state = rnn(traj)
+            buffer.push(state, action, reward, next_state, terminal, rnn_state, next_rnn_state)
             state = next_state
+            if use_rnn:
+                rnn_state = next_rnn_state
             # optimize
             if len(buffer) >= max(batch_size, start_train):
-                states_b, actions_b, rewards_b, next_states_b, dones_b = buffer.sample(batch_size)
+                states_b, actions_b, rewards_b, next_states_b, dones_b, rnn_states_b, next_rnn_states_b = buffer.sample(batch_size)
                 states_t = stack_states(states_b, env, device)
                 next_states_t = stack_states(next_states_b, env, device)
                 actions_t = torch.tensor(actions_b, device=device, dtype=torch.long).unsqueeze(1)
                 rewards_t = torch.tensor(rewards_b, device=device, dtype=torch.float32).unsqueeze(1)
                 dones_t = torch.tensor(dones_b, device=device, dtype=torch.float32).unsqueeze(1)
-                q_values = online(states_t).gather(1, actions_t)
+                if use_rnn:
+                    rnn_states_t = torch.cat([s for s in rnn_states_b], dim=0).to(device)
+                    next_rnn_states_t = torch.cat([s for s in next_rnn_states_b], dim=0).to(device)
+                else:
+                    rnn_states_t = None
+                    next_rnn_states_t = None
+                q_values = online(states_t, rnn_states_t).gather(1, actions_t)
                 with torch.no_grad():
-                    next_q = target(next_states_t)
+                    next_q = target(next_states_t, next_rnn_states_t)
                     next_q_max = next_q.max(1)[0].unsqueeze(1)
                     target_q = rewards_t + (1.0 - dones_t) * gamma * next_q_max # dones?? TODO: check.
                 loss = F.mse_loss(q_values, target_q)
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
+                if use_rnn and len(reward_trajectories) > 0:
+                    dataset = RNN.RewardTrajectoryDataset(reward_trajectories, window=rnn_window)
+                    if len(dataset) > 0:
+                        loader = DataLoader(dataset, batch_size=32, shuffle=True)
+                        for epoch in range(4):
+                            for seq, target_reward in loader:
+                                rnn_optimizer.zero_grad()
+                                pred_reward, _ = rnn(seq)
+                                if len(target_reward) == 1:
+                                    target_reward = target_reward.unsqueeze(0)
+                                rnn_loss = criterion(pred_reward, target_reward)
+                                rnn_loss.backward()
+                                rnn_optimizer.step()
+                            rnn_losses.append(rnn_loss.item())
             if total_steps % target_update == 0:
                 target.load_state_dict(online.state_dict())
             if terminal:
+                if use_rnn:
+                    reward_trajectories.append(reward_trajectory.get_trajectory())
                 break
         # simple logging
         # if ep % logging_rate == 0:
@@ -226,4 +279,6 @@ def train_ddqn(device, env: GridWorldEnv, hidden=64, episodes=10_000, max_steps=
         # if count >= early_stop:
         #     print(f"Early stopping as agent consistently solved the environment in the last {count} episodes.")
         #     break
-    return online, data
+    if use_rnn:
+        return online, data, rnn_losses
+    return online, data, None

@@ -25,7 +25,7 @@ class RewardTrajectoryDataset(Dataset):
         for traj in trajectories:
             if len(traj) <= window:
                 continue
-            for i in range(0, len(traj) - window):  # Step of window to reduce dataset size
+            for i in range(0, len(traj) - window, 3):  # Sample every 3 steps to reduce dataset size
                 seq = traj[i:i+window]
                 target = traj[i+window]
                 self.X.append(seq)
