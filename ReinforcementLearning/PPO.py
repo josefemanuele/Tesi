@@ -341,7 +341,7 @@ def train_ppo(device, env: GridWorldEnv, hidden=64,
             dataset = RNN.RewardTrajectoryDataset(reward_trajectories, window=rnn_window, device=device)
             loader = DataLoader(dataset, batch_size=32, shuffle=True)
             for epoch in range(4):
-                seq, _ = next(iter(loader))
+                seq, target = next(iter(loader))
                 rnn_optimizer.zero_grad()
                 pred, _ = rnn(seq)
                 if len(target) == 1:
