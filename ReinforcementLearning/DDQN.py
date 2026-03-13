@@ -252,15 +252,15 @@ def train_ddqn(device, env: GridWorldEnv, hidden=64, episodes=10_000, max_steps=
                     dataset = RNN.RewardTrajectoryDataset(reward_trajectories, window=rnn_window, device=device)
                     if len(dataset) > 0:
                         loader = DataLoader(dataset, batch_size=32, shuffle=True)
-                        for epoch in range(4):
-                            for seq, target_reward in loader:
-                                rnn_optimizer.zero_grad()
-                                pred_reward, _ = rnn(seq)
-                                if len(target_reward) == 1:
-                                    target_reward = target_reward.unsqueeze(0)
-                                rnn_loss = criterion(pred_reward, target_reward)
-                                rnn_loss.backward()
-                                rnn_optimizer.step()
+                        for epoch in range(10):
+                            seq, target_reward = next(iter(loader))
+                            rnn_optimizer.zero_grad()
+                            pred_reward, _ = rnn(seq)
+                            if len(target_reward) == 1:
+                                target_reward = target_reward.unsqueeze(0)
+                            rnn_loss = criterion(pred_reward, target_reward)
+                            rnn_loss.backward()
+                            rnn_optimizer.step()
                             rnn_losses.append(rnn_loss.item())
             if total_steps % target_update == 0:
                 target.load_state_dict(online.state_dict())
