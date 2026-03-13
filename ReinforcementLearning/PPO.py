@@ -340,15 +340,15 @@ def train_ppo(device, env: GridWorldEnv, hidden=64,
         if use_rnn:
             dataset = RNN.RewardTrajectoryDataset(reward_trajectories, window=rnn_window, device=device)
             loader = DataLoader(dataset, batch_size=32, shuffle=True)
-            for epoch in range(3):
-                for seq, target in loader:
-                    rnn_optimizer.zero_grad()
-                    pred, _ = rnn(seq)
-                    if len(target) == 1:
-                        target = target.unsqueeze(0)
-                    loss = criterion(pred, target)
-                    loss.backward()
-                    rnn_optimizer.step()
+            for epoch in range(4):
+                seq, _ = next(iter(loader))
+                rnn_optimizer.zero_grad()
+                pred, _ = rnn(seq)
+                if len(target) == 1:
+                    target = target.unsqueeze(0)
+                loss = criterion(pred, target)
+                loss.backward()
+                rnn_optimizer.step()
                 rnn_losses.append(loss.item())
         for epoch in range(epochs):
             # Shuffle indices

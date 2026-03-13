@@ -71,8 +71,6 @@ if __name__ == "__main__":
         external_automaton = True
     if args.check_markovianity:
         external_automaton = True
-    if args.gru:
-        use_automaton = False
     start_time = datetime.now().strftime("%Y-%m-%d.%H:%M:%S")
     # Log experiment parameters
     with open(dm.get_experiment_folder() + "experiment_parameters.txt", "w") as f:
@@ -112,7 +110,7 @@ if __name__ == "__main__":
         print(f"Running experiments for: {description}")
         # Dataframe collecting data from all runs
         dfs = list()
-        ltls = {"gru": formula}
+        ltls = {"upper_bound": formula}
         if args.test_translations:
             translated_ltls = d.get("filtered_symbolic_lang2ltl_translations", [])
             ltls.update({f"translation_{n}": translated_ltl for n, translated_ltl in enumerate(translated_ltls)})
@@ -120,14 +118,28 @@ if __name__ == "__main__":
         if args.test_partial_formulas:
             partial_formulas = d.get("partial_formulas", [])
             ltls.update({f"partial_{n}": partial_formula for n, partial_formula in enumerate(partial_formulas)})
+        if args.gru:
+            ltls["gru"] = formula
         if args.add_baseline:
             ltls["baseline"] = 0
         print(f'Testing LTL formulas: {ltls.items()}')
         for ltl_tag, ltl in ltls.items():
             print(f"Testing LTL formula: {ltl} with tag: {ltl_tag}")
-            _use_automaton = False if ltl_tag == "baseline" else use_automaton
-            _external_automaton = False if ltl_tag == "baseline" else external_automaton
-            _check_markovianity = False if ltl_tag == "baseline" else args.check_markovianity
+            if ltl_tag == "baseline":
+                _use_automaton = False
+                _external_automaton = False
+                _check_markovianity = False
+                use_rnn = False
+            if ltl_tag == "gru":
+                _use_automaton = False
+                _external_automaton = False
+                _check_markovianity = False
+                use_rnn = True
+            else:
+                _use_automaton = use_automaton
+                _external_automaton = external_automaton
+                _check_markovianity = args.check_markovianity
+                use_rnn = False
             # Create environment
             env = GridWorldEnvWrapper(
                 formula=(formula, n_symbols, name + '_' + ltl_tag), 
@@ -143,14 +155,13 @@ if __name__ == "__main__":
             runs = list()
             for r in range(1, args.runs + 1):
                 print(f"Experiment {r} / {args.runs}")
-                if ltl_tag == "gru":
-                    use_rnn = True
-                else:
-                    use_rnn = False
                 if args.algorithm == "DDQN":
-                    _, data, rnn_losses = DDQN.train_ddqn(device=device, env=env, hidden=args.hidden, episodes=args.episodes, max_steps=args.steps, batch_size=args.batch, buffer_capacity=args.buffer, use_rnn=use_rnn)
+                    _, data, rnn_losses = DDQN.train_ddqn(device=device, env=env, 
+                            hidden=args.hidden, episodes=args.episodes, max_steps=args.steps, 
+                            batch_size=args.batch, buffer_capacity=args.buffer, use_rnn=use_rnn)
                 elif args.algorithm == "PPO":
-                    _, data, rnn_losses = PPO.train_ppo(device=device, env=env, hidden=args.hidden, episodes=args.episodes, steps=args.steps, minibatch_size=args.batch, 
+                    _, data, rnn_losses = PPO.train_ppo(device=device, env=env, hidden=args.hidden, 
+                            episodes=args.episodes, steps=args.steps, minibatch_size=args.batch, 
                             epochs=args.epochs, clip_epsilon=args.clip_epsilon, lr=args.lr, vf_coef=args.vf_coef, 
                             ent_coef=args.ent_coef, max_grad_norm=args.max_grad_norm, use_rnn=use_rnn)
                 else:
@@ -158,7 +169,7 @@ if __name__ == "__main__":
                 # Plot RNN training loss
                 if ltl_tag == "gru":
                     df = pd.DataFrame(rnn_losses, columns=["mse_loss"])
-                    plt.plot(df.rolling(window=25).mean())
+                    plt.plot(df.rolling(window=100).mean())
                     plt.title("RNN Training Loss")
                     plt.xlabel("Epoch")
                     plt.ylabel("MSE Loss")
