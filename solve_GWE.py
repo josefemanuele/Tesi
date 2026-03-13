@@ -130,7 +130,7 @@ if __name__ == "__main__":
                 _external_automaton = False
                 _check_markovianity = False
                 use_rnn = False
-            if ltl_tag == "gru":
+            elif ltl_tag == "gru":
                 _use_automaton = False
                 _external_automaton = False
                 _check_markovianity = False
