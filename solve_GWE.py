@@ -112,7 +112,7 @@ if __name__ == "__main__":
         dfs = list()
         ltls = {"upper_bound": formula}
         if args.test_translations:
-            translated_ltls = unique_ordered_list(d.get("poll_translations_to_GPT5", []))
+            translated_ltls = unique_ordered_list(d.get("filtered_symbolic_lang2ltl_translations", []))
             ltls.update({f"translation_{n}": translated_ltl for n, translated_ltl in enumerate(translated_ltls)})
             print(f"Testing translated LTL formulas: {list(enumerate(ltls))}")
         if args.test_partial_formulas:
