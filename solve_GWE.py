@@ -47,7 +47,7 @@ if __name__ == "__main__":
     parser.add_argument("--max_grad_norm", type=float, default=0.5, help="Maximum gradient norm for clipping")
     parser.add_argument("--hidden", type=int, default=64, help="Hidden layer size for the model")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--test-translations", action='store_true', help="Test translated LTL formulas")
+    parser.add_argument("--test-translations", type=str, help="Test translated LTL formulas")
     parser.add_argument("--recompute-image-pkl", action='store_true', help="If set, recompute and overwrite image pkl files")
     parser.add_argument("--check-markovianity", action='store_true', help="If set, check Markovianity of the environment")
     parser.add_argument("--add-baseline", action='store_true', help="If set, add baseline to the experiment")
@@ -112,7 +112,7 @@ if __name__ == "__main__":
         dfs = list()
         ltls = {"upper_bound": formula}
         if args.test_translations:
-            translated_ltls = unique_ordered_list(d.get("filtered_symbolic_lang2ltl_translations", []))
+            translated_ltls = unique_ordered_list(d.get(args.test_translations, []))
             ltls.update({f"translation_{n}": translated_ltl for n, translated_ltl in enumerate(translated_ltls)})
             print(f"Testing translated LTL formulas: {list(enumerate(ltls))}")
         if args.test_partial_formulas:
