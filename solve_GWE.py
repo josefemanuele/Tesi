@@ -46,7 +46,6 @@ if __name__ == "__main__":
     parser.add_argument("--ent_coef", type=float, default=0.01, help="Entropy loss coefficient")
     parser.add_argument("--max_grad_norm", type=float, default=0.5, help="Maximum gradient norm for clipping")
     parser.add_argument("--hidden", type=int, default=64, help="Hidden layer size for the model")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
     parser.add_argument("--test-translations", type=str, help="Test translated LTL formulas")
     parser.add_argument("--recompute-image-pkl", action='store_true', help="If set, recompute and overwrite image pkl files")
     parser.add_argument("--check-markovianity", action='store_true', help="If set, check Markovianity of the environment")
@@ -89,14 +88,11 @@ if __name__ == "__main__":
         f.write(f"# epochs: {args.epochs}, clip_epsilon: {args.clip_epsilon}, lr: {args.lr}\n") 
         f.write(f"# vf_coef: {args.vf_coef}, ent_coef: {args.ent_coef}, max_grad_norm: {args.max_grad_norm}\n")
         f.write(f"# hidden layer size: {args.hidden}\n")
-        f.write(f"# seed: {args.seed}\n")
         f.write(f"# test_translations: {args.test_translations}\n")
         f.write(f"# check_markovianity: {args.check_markovianity}\n")
         f.write(f"# add_baseline: {args.add_baseline}\n")
         f.write(f"# test_partial_formulas: {args.test_partial_formulas}\n")
         f.write(f"# start_time: {start_time}\n")
-    # TODO: Check seeding working properly
-    set_seed(args.seed)
     # Load LTL formulas
     LTL.load_data()
     data = LTL.get_data()
@@ -155,6 +151,7 @@ if __name__ == "__main__":
             runs = list()
             for r in range(1, args.runs + 1):
                 print(f"Experiment {r} / {args.runs}")
+                set_seed(r)
                 if args.algorithm == "DDQN":
                     _, data, rnn_losses = DDQN.train_ddqn(device=device, env=env, 
                             hidden=args.hidden, episodes=args.episodes, max_steps=args.steps, 
