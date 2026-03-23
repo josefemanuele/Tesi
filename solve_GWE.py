@@ -32,7 +32,7 @@ if __name__ == "__main__":
     parser.add_argument("--formulas", type=int, default=10, help="Number of formulas to consider from LTL_tasks")
     parser.add_argument("--external-automaton", action='store_true', help="If set, use external automaton")
     parser.add_argument("--no-automaton", action='store_true', help="If set, do not use automaton states")
-    parser.add_argument("--image-state", action='store_true', help="Set state type to image")
+    parser.add_argument("--image", action='store_true', help="Set state type to image")
     parser.add_argument("--render-mode", type=str, default="human", help="Set render mode")
     parser.add_argument("--runs", type=int, default=3, help="Experiment runs per formula")
     parser.add_argument("--episodes", type=int, default=3_000, help="Number of episodes to train")
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     external_automaton = args.external_automaton
     if external_automaton:
         use_automaton = True
-    state_type = "image" if args.image_state else "symbolic"
+    state_type = "image" if args.image else "symbolic"
     if args.test_translations:
         external_automaton = True
     if args.test_partial_formulas:
