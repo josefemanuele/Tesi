@@ -50,9 +50,10 @@ if __name__ == "__main__":
     parser.add_argument("--recompute-image-pkl", action='store_true', help="If set, recompute and overwrite image pkl files")
     parser.add_argument("--check-markovianity", action='store_true', help="If set, check Markovianity of the environment")
     parser.add_argument("--add-baseline", action='store_true', help="If set, add baseline to the experiment")
+    parser.add_argument("--add-upper-bound", action='store_true', help="If set, add upper bound to the experiment")
     parser.add_argument("--test-partial-formulas", action='store_true', help="If set, test partial LTL formulas")
     parser.add_argument("--one", action='store_true', help="If set, use cuda device:1")
-    parser.add_argument("--gru", action='store_true', help="If set, use GRU")
+    parser.add_argument("--rnn", action='store_true', help="If set, use RNN")
     args = parser.parse_args()
     dm = DirectoryManager()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -81,7 +82,7 @@ if __name__ == "__main__":
         f.write(f"# Render mode: {args.render_mode}\n")
         f.write(f"# Use automaton states: {use_automaton}\n")
         f.write(f"# Use external automaton: {external_automaton}\n")
-        f.write(f"# GRU: {args.gru}\n")
+        f.write(f"# RNN: {args.rnn}\n")
         f.write(f"# Number of formulas: {args.formulas}\n")
         f.write(f"# Runs per formula: {args.runs}\n")
         f.write(f"# Training episodes: {args.episodes}, steps per rollout: {args.steps}, batch size: {args.batch}\n")
@@ -91,6 +92,7 @@ if __name__ == "__main__":
         f.write(f"# test_translations: {args.test_translations}\n")
         f.write(f"# check_markovianity: {args.check_markovianity}\n")
         f.write(f"# add_baseline: {args.add_baseline}\n")
+        f.write(f"# add_upper_bound: {args.add_upper_bound}\n")
         f.write(f"# test_partial_formulas: {args.test_partial_formulas}\n")
         f.write(f"# start_time: {start_time}\n")
     # Load LTL formulas
@@ -106,7 +108,9 @@ if __name__ == "__main__":
         print(f"Running experiments for: {description}")
         # Dataframe collecting data from all runs
         dfs = list()
-        ltls = {"upper_bound": formula}
+        ltls = {}
+        if args.add_upper_bound:
+            ltls["upper_bound"] = formula
         if args.test_translations:
             translated_ltls = unique_ordered_list(d.get(args.test_translations, []))
             ltls.update({f"translation_{n}": translated_ltl for n, translated_ltl in enumerate(translated_ltls)})
@@ -114,8 +118,8 @@ if __name__ == "__main__":
         if args.test_partial_formulas:
             partial_formulas = d.get("partial_formulas", [])
             ltls.update({f"partial_{n}": partial_formula for n, partial_formula in enumerate(partial_formulas)})
-        if args.gru:
-            ltls["gru"] = formula
+        if args.rnn:
+            ltls["rnn"] = formula
         if args.add_baseline:
             ltls["baseline"] = 0
         print(f'Testing LTL formulas: {ltls.items()}')
@@ -126,7 +130,7 @@ if __name__ == "__main__":
                 _external_automaton = False
                 _check_markovianity = False
                 use_rnn = False
-            elif ltl_tag == "gru":
+            elif ltl_tag == "rnn":
                 _use_automaton = False
                 _external_automaton = False
                 _check_markovianity = False
@@ -164,7 +168,7 @@ if __name__ == "__main__":
                 else:
                     raise ValueError(f"ERROR: Algorithm {args.algorithm} not supported.")
                 # Plot RNN training loss
-                if ltl_tag == "gru":
+                if ltl_tag == "rnn":
                     df = pd.DataFrame(rnn_losses, columns=["mse_loss"])
                     plt.plot(df.rolling(window=100).mean())
                     plt.title("RNN Training Loss")
