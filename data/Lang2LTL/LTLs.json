@@ -21,18 +21,6 @@
             "Proceed to the ore picker and then to the lava field.  ",
             "Get to the miner's pick and then to the hot magma."
         ],
-        "natural_language_utterances": [
-            "Visit the pick and the lava.",
-            "Pick the pickaxe and go to the lava.",
-            "Take the pickaxe and dip into the lava.",
-            "Go to the pickaxe and visit the lava.",
-            "Pick up the pick and touch the lava.",
-            "Grab the pick and go to the lava.",
-            "Pick the pick and the lava, in any order.",
-            "Grab the pick and the lava, in any order.",
-            "In any order, go to the pick and the lava.",
-            "Visit the pick and the lava."
-        ],
         "translated_ltls": [
             "F c0 & F c1",
             "F c0 & F c1",
@@ -45,6 +33,8 @@
             "F(c0 & F c1)",
             "F(c0 & F c1)"
         ],
+        "paraphrased_success_rate_spot": 0.2,
+        "gpt-5.2_accuracy_spot": 0.2,
         "lang2ltl_translations": [
             "((F pickaxe) & (F lava))",
             "(F (pickaxe & (F lava)))",
@@ -57,7 +47,6 @@
             "((F pickaxe) & (F lava))",
             "((F pickaxe) & (F lava))"
         ],
-        "paraphrased_success_rate_spot": 0.2,
         "symbolic_lang2ltl_translations": [
             "((F c0) & (F c1))",
             "(F (c0 & (F c1)))",
@@ -74,7 +63,6 @@
             "(F (c0 & (F c1)))"
         ],
         "lang2ltl_accuracy_spot": 0.6,
-        "gpt-5.2_accuracy_spot": 0.2,
         "gpt52_cot_ltls": [
             "F(c0) & F(c1)",
             "F c0 & F c1",
@@ -88,6 +76,57 @@
             "F c0 & F c1"
         ],
         "gpt52_cot_accuracy_spot": 1.0,
+        "natural_language_utterances": [
+            "Visit the pick and the lava.",
+            "Pick the pickaxe and go to the lava.",
+            "Take the pickaxe and dip into the lava.",
+            "Go to the pickaxe and visit the lava.",
+            "Pick up the pick and touch the lava.",
+            "Grab the pick and go to the lava.",
+            "Pick the pick and the lava, in any order.",
+            "Grab the pick and the lava, in any order.",
+            "In any order, go to the pick and the lava.",
+            "Visit the pick and the lava."
+        ],
+        "natural_language_utterances_to_Lang2LTL": [
+            "((F c0) & (F c1))",
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "((F c0) & (F c1))",
+            "(F (c0 & (F c1)))",
+            "(F (c0 & (F c1)))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))",
+            "((F c0) & (F c1))"
+        ],
+        "natural_language_utterances_to_Lang2LTL_accuracy": 0.6,
+        "natural_language_utterances_to_GPT5": [
+            "F c0 & F c1",
+            "F(c0 & F c1)",
+            "F(c0 & F c1)",
+            "F c0 & F c1",
+            "F(c0) & F(c1)",
+            "F(c0) & F(c1)",
+            "F c0 & F c1",
+            "F(c0) & F(c1)",
+            "F c0 & F c1",
+            "F c0 & F c1"
+        ],
+        "natural_language_utterances_to_GPT5_accuracy": 0.8,
+        "natural_language_utterances_to_GPT5-COT": [
+            "F c0 & F c1",
+            "F(c0) & F(c1)",
+            "F(c0 & F(c1))",
+            "F c0 & F c1",
+            "F c0 & F c1",
+            "F c0 & F c1",
+            "F c0 & F c1",
+            "F c0 & F c1",
+            "(F c0) & (F c1)",
+            "F c0 & F c1"
+        ],
+        "natural_language_utterances_to_GPT5-COT_accuracy": 0.9,
         "pr_lang2ltl_translations": [
             "((F c0) & (F c1))",
             "((F c0) & (F c1))",
@@ -131,6 +170,9 @@
             "Visit pickaxe and visit lava",
             "Visit pickaxe and visit lava",
             "Visit pickaxe and visit lava",
+            "Visit pickaxe and visit lava",
+            "Visit pickaxe and Visit lava",
+            "visit pickaxe and then visit pickaxe",
             "Visit pickaxe and visit lava"
         ],
         "poll_translations_to_Lang2LTL": [
@@ -195,46 +237,7 @@
             "(F c0) & (F c1)",
             "F c0 & F c1"
         ],
-        "poll_translations_to_GPT5-COT_accuracy": 0.8888888888888888,
-        "natural_language_utterances_to_Lang2LTL": [
-            "((F c0) & (F c1))",
-            "(F (c0 & (F c1)))",
-            "(F (c0 & (F c1)))",
-            "((F c0) & (F c1))",
-            "(F (c0 & (F c1)))",
-            "(F (c0 & (F c1)))",
-            "((F c0) & (F c1))",
-            "((F c0) & (F c1))",
-            "((F c0) & (F c1))",
-            "((F c0) & (F c1))"
-        ],
-        "natural_language_utterances_to_Lang2LTL_accuracy": 0.6,
-        "natural_language_utterances_to_GPT5": [
-            "F c0 & F c1",
-            "F(c0 & F c1)",
-            "F(c0 & F c1)",
-            "F c0 & F c1",
-            "F(c0) & F(c1)",
-            "F(c0) & F(c1)",
-            "F c0 & F c1",
-            "F(c0) & F(c1)",
-            "F c0 & F c1",
-            "F c0 & F c1"
-        ],
-        "natural_language_utterances_to_GPT5_accuracy": 0.8,
-        "natural_language_utterances_to_GPT5-COT": [
-            "F c0 & F c1",
-            "F(c0) & F(c1)",
-            "F(c0 & F(c1))",
-            "F c0 & F c1",
-            "F c0 & F c1",
-            "F c0 & F c1",
-            "F c0 & F c1",
-            "F c0 & F c1",
-            "(F c0) & (F c1)",
-            "F c0 & F c1"
-        ],
-        "natural_language_utterances_to_GPT5-COT_accuracy": 0.9
+        "poll_translations_to_GPT5-COT_accuracy": 0.8888888888888888
     },
     {
         "formula": "(F c0) & (F c1) & (F c2)",
@@ -360,7 +363,10 @@
             "Visit pickaxe and visit lava and visit door",
             "Visit pickaxe and visit lava and visit door",
             "Visit pickaxe visit lava and visit door",
-            "Visit pickaxe, visit lava and visit door"
+            "Visit pickaxe, visit lava and visit door",
+            "Visit pickaxe and visit lava and visit door",
+            "Visit pickaxe and then visit lava and then visit door ",
+            "Visit pickaxe and visit lava and visit door"
         ],
         "poll_translations_to_Lang2LTL": [
             "((F c0) & ((F c1) & (F c2)))",
@@ -597,6 +603,9 @@
             "Visit lava and then visit pickaxe",
             "Visit lava and then visit pickaxe",
             "Visit lava and then visit pickaxe",
+            "Visit lava and then visit pickaxe",
+            "Visit lava and then visit pickaxe",
+            "visit lava and then visit pickaxe",
             "Visit lava and then visit pickaxe"
         ],
         "poll_translations_to_Lang2LTL": [
@@ -845,7 +854,10 @@
             "Visit lava and then visit pickaxe and visit gem and then visit door",
             "Visit lava and then visit pickaxe and visit gem and then visit gem",
             "Visit lava and then visit pickaxe and visit gem and then visit door",
-            "Visit lava and gem and then visit pickaxe and door"
+            "Visit lava and gem and then visit pickaxe and door",
+            "Visit lava and then visit pickaxe, visit door and then visit gem",
+            "Visit lava and then visit pickaxe and then visit door and then visit gem",
+            "Visit lava and then pickaxe and visit door and then gem"
         ],
         "poll_translations_to_Lang2LTL": [
             "(F (c1 & (F (c0 & (F (c3 & (F c2)))))))",
@@ -1090,7 +1102,10 @@
             "Visit lava and then pickaxe and visit door",
             "Visit door and visit lava and then visit pickaxe",
             "Visit lava and then visit pickaxe and visit door",
-            "Visit lava and door and then visit pickaxe"
+            "Visit lava and door and then visit pickaxe",
+            "Visit lava and then visit pickaxe, visit door",
+            "Visit lava and then visit pickaxe, and then visit door",
+            "Visit lava and then visit pickaxe, visit door"
         ],
         "poll_translations_to_Lang2LTL": [
             "(F (c1 & (F (c0 & (F c2)))))",
@@ -1335,7 +1350,10 @@
             "Visit lava and then pickaxe and visit door and visit gem",
             "Visit gem and visit door and visit lava and then visit pickaxe",
             "Visit lava and then visit pickaxe and visit door and visit gem",
-            "Visit lava, door and gem and then visit pickaxe"
+            "Visit lava, door and gem and then visit pickaxe",
+            "Visit lava and then visit pickaxe; visit gem and visit door",
+            "Visit lava and then visit pickaxe and then visit gem and then visit door",
+            "Visit lava and then pickaxe, and visit gem and visit door"
         ],
         "poll_translations_to_Lang2LTL": [
             "(F (c1 & (F (c0 & (F (c2 & (F c3)))))))",
@@ -1578,6 +1596,9 @@
             "Visit pickaxe and visit lava and  do not ever visit door",
             "Visit pickaxe and visit lava and do not ever visit door",
             "Visit pickaxe and visit lava and do not ever visit door",
+            "Visit pickaxe and lava and do not ever visit door",
+            "Visit pickaxe and lava, do not ever visit door",
+            "visit pickaxe and then visit lava and do not ever visit door",
             "Visit pickaxe and lava and do not ever visit door"
         ],
         "poll_translations_to_Lang2LTL": [
@@ -1825,7 +1846,10 @@
             "Visit pickaxe and visit lava and  do not ever visit door and do not ever visit gem",
             "Visit pickaxe and visit lava and do not ever visit door and do not ever visit gem",
             "Visit pickaxe and visit lava and do not ever visit door and do not ever visit gem",
-            "Visit pickaxe and lava and do not ever visit door and gem"
+            "Visit pickaxe and lava and do not ever visit door and gem",
+            "Visit pickaxe, visit lava, do not ever visit door and do not ever visit gem",
+            "visit pickaxe and then visita lava and do not ever visit door and do not ever visit gem",
+            "Visit pickaxe and visita lava and do not ever visit door and gem"
         ],
         "poll_translations_to_Lang2LTL": [
             "((G (! c0)) & ((G (! c1)) & ((G (! c2)) & (G (! c3)))))",
@@ -2067,7 +2091,10 @@
             "Visit lava then visit pickaxe and do not ever visit door",
             "Do not ever visit door and visit lava and then visit pickaxe",
             "Visit lava and then visit pickaxe and do not ever visit door",
-            "Visit lava and then visit pickaxe and do not ever visit door"
+            "Visit lava and then visit pickaxe and do not ever visit door",
+            "Visita lava and then pickaxe, do not ever visit door",
+            "visita lava and then visit pickaxe and do not ever visit door",
+            "Visita lava and then visit pickaxe and do not visit door"
         ],
         "poll_translations_to_Lang2LTL": [
             "((G (! c1)) & ((G (! c0)) & (G (! c2))))",
@@ -2314,7 +2341,10 @@
             "Visit lava and then visit pickaxe and do not ever visit door and do not ever visit gem",
             "Do not ever visit gem and do not ever visit door and visit lava and then visit pickaxe",
             "Visit lava and then visit pickaxe and do not ever visit door and do not ever visit gem",
-            "Visit lava and then visit pickaxe and do not ever visit door and gem"
+            "Visit lava and then visit pickaxe and do not ever visit door and gem",
+            "Visit lava and then visit pickaxe, do not ever visit door and do not ever visit gem",
+            "visit lava and then visit pickaxe and do not ever visit door do not ever visit gem",
+            "Visit lava and then pickaxe and do not ever visit door and gem"
         ],
         "poll_translations_to_Lang2LTL": [
             "((G (! c1)) & ((G (! c0)) & ((G (! c2)) & (G (! c3)))))",
