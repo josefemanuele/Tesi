@@ -88,7 +88,8 @@ def toSymbolic(formula):
     return formula
 
 def translate(utt):
-    result = lang2ltl(utt, obj2sem, keep_keys, rer_prompt_fpath='data/Lang2LTL/RErecognition/rer_prompt_GWE.txt')
+    result = lang2ltl(utt, obj2sem, keep_keys, rer_prompt_fpath='data/Lang2LTL/RErecognition/rer_prompt_GWE.txt', update_embed=False)
+    # result = lang2ltl(utt, obj2sem, keep_keys, rer_prompt_fpath='data/Lang2LTL/RErecognition/rer_prompt_GWE.txt')
     # result = parse(utt, obj2sem, keep_keys, rer_prompt_fpath='data/rer_prompt_GWE.txt')
     # print("LTL formula:", result)
     infix = prefixToInfix(result)
