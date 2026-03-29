@@ -11,6 +11,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from utils.utils import unique_ordered_list
+import numpy as np
 
 models = ['gpt-5.2', 'gpt-5', 'gpt-5-mini', 'gpt-5-nano']
 models = models[:]
@@ -51,10 +52,26 @@ def get_data():
     return data
 
 task = 'Transform the following natural language sentence into an Linear Temporal Logic task. ' \
-'Use & as AND operator, | as OR, > as implication, ! as NOT. Use F as finally temporal operator, ' \
+'Use & as AND operator, | as OR, -> as implication, ! as NOT. Use F as finally temporal operator, ' \
 'G as globally temporal operator. Use c0 as symbol for pickaxe, c1 as symbol for lava, c2 as symbol ' \
 'for door, c3 as symbol for gem. Only provide the LTL task as your response,  without the triple ' \
 'backtick tag defining a code block. ' \
+
+prompt = "You are given a natural language instruction for a task in a simulated environment. " \
+"Your goal is to convert the instruction into a Linear Temporal Logic (LTL) formula. " \
+"Use & as AND operator, | as OR, -> as implication, ! as NOT. Use F as finally temporal operator, " \
+"G as globally temporal operator. Use c0 as symbol for pickaxe, c1 as symbol for lava, c2 as symbol " \
+"for door, c3 as symbol for gem. Remember to not assume and impose temporal constraints if those are not " \
+"explicitly expressed in the instruction. Only provide the LTL formula as your response, without the triple " \
+"backtick tag defining a code block. "
+
+prompt_COT = 'You are given a natural language instruction for a task in a simulated environment. ' \
+'Your goal is to convert the instruction into a Linear Temporal Logic (LTL) formula. ' \
+'Use & as AND operator, | as OR, -> as implication, ! as NOT. Use F as finally temporal operator, ' \
+'G as globally temporal operator. Use c0 as symbol for pickaxe, c1 as symbol for lava, c2 as symbol ' \
+'for door, c3 as symbol for gem. Remember to not assume and impose temporal constraints if those are not ' \
+'explicitly expressed in the instruction. Think and perform your considerations step by step. ' \
+'As final sentence of your response, provide the translated LTL task, enclosed in "**". ' \
 
 sentences = ['Pick the pickaxe and pick the gem.',
              'Pick the gem, only after picking the pickaxe.',
@@ -106,7 +123,7 @@ def data_augmentation(client, model='gpt-5.2', utterance="Visit the pickaxe and 
     "Provide the paraphrased instructions one after the other, separated by line breaks. " \
     "Without any additional numbering or bullet points. " \
     "In only ascii characters."
-    input = prompt + "\n\nOriginal instruction: " + utterance
+    input = prompt + "\n\nInstruction: " + utterance
     response = client.responses.create(
         model=model,
         input=input
@@ -114,19 +131,18 @@ def data_augmentation(client, model='gpt-5.2', utterance="Visit the pickaxe and 
     paraphrased = response.output_text.split('\n')
     return paraphrased
 
-def lang_to_ltl(client, model='gpt-5.2', utterance="Visit the pickaxe and visit the lava."):
-    prompt = "You are given a natural language instruction for a task in a simulated environment. " \
-    "Your goal is to convert the instruction into a Linear Temporal Logic (LTL) formula. " \
-    "Use & as AND operator, | as OR, > as implication, ! as NOT. Use F as finally temporal operator, " \
-    "G as globally temporal operator. Use c0 as symbol for pickaxe, c1 as symbol for lava, c2 as symbol " \
-    "for door, c3 as symbol for gem. Only provide the LTL formula as your response, without the triple " \
-    "backtick tag defining a code block. "
-    input = prompt + "\n\nOriginal instruction: " + utterance
+def lang_to_ltl(client, model='gpt-5.2', utterance="Visit the pickaxe and visit the lava.", cot=False):
+    task = prompt_COT if cot else prompt
+    input = task + "\n\nInstruction: " + utterance
     response = client.responses.create(
         model=model,
         input=input
     )
-    ltl = response.output_text.strip()
+    if cot:
+        print("Model's step-by-step considerations:\n", response.output_text)
+        ltl = response.output_text.split('**')[-2].strip()
+    else:
+        ltl = response.output_text
     return ltl
 
 def check_equivalence(ltl1, ltl2, num_symbols):
@@ -149,8 +165,32 @@ def check_equivalence(ltl1, ltl2, num_symbols):
 
 def plot_equivalence_results(data):
     df = pd.DataFrame(data)
-    sns.relplot(df, x='name', y="paraphrased_success_rate_spot", kind="scatter")
-    plt.savefig("data/Lang2LTL/LLM_Translation_Success_Rate.png")
+    formulas = df['formula'].tolist()
+    accuracies = {}
+    accuracies['pr_to_lang2ltl'] = df['pr_lang2ltl_accuracy_spot'].tolist()
+    accuracies['nlu_to_lang2ltl'] = df['natural_language_utterances_to_Lang2LTL_accuracy'].tolist()
+    #accuracies['gpt-5.2-CoT'] = df['poll_translations_to_GPT5-COT_accuracy'].tolist()
+    colors = sns.color_palette("Greys", n_colors=len(accuracies))
+    plt.figure(figsize=(12, 6))
+    x = np.arange(len(formulas))  # the label locations
+    width = 0.25  # the width of the bars
+    multiplier = 0
+    fig, ax = plt.subplots(layout='constrained')
+    for attribute, measurement in accuracies.items():
+        offset = width * multiplier
+        rects = ax.bar(x + offset, measurement, width, label=attribute, color=colors[multiplier])
+        ax.bar_label(rects, padding=3)
+        multiplier += 1
+    ax.set_ylabel('Accuracy')
+    ax.set_title('Translation Success Rate by LTL Formula')
+    ax.set_xticks(x + width, formulas)
+    ax.legend(loc='upper left', ncols=3)
+    ax.set_ylim(0, 1)
+    plt.xticks(rotation=45, ha='right')
+    plt.ylim(0, 1)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("data/Lang2LTL/PR_NLU_Translation_Success_Rate.png")
     plt.close()
 
 if __name__ == "__main__":
@@ -159,11 +199,12 @@ if __name__ == "__main__":
     parser.add_argument("--create-data", default=False, help="Whether to recreate the data file", action='store_true')
     parser.add_argument("--paraphrase", default=False, help="Whether to generate paraphrases", action='store_true')
     parser.add_argument("--translate", default=False, help="Whether to translate paraphrases to LTL", action='store_true')
-    parser.add_argument("--evaluate", default=False, help="Whether to evaluate equivalence of translated LTLs with correct LTL", action='store_true')
+    parser.add_argument("--cot", default=False, help="Whether to use chain-of-thought prompting", action='store_true')
     parser.add_argument("--lang2ltl", default=False, help="Whether to translate utterances with Lang2LTL", action='store_true')
-    parser.add_argument("--plot", default=False, help="Plot translation success rates", action='store_true')
     parser.add_argument("--to-symbolic", default=False, help="Convert translated LTL formulas to symbolic form", action='store_true')
     parser.add_argument("--filter", default=False, help="Filter translated LTL formulas", action='store_true')
+    parser.add_argument("--evaluate", default=False, help="Whether to evaluate equivalence of translated LTLs with correct LTL", action='store_true')
+    parser.add_argument("--plot", default=False, help="Plot translation success rates", action='store_true')
     args = parser.parse_args()
     with open('LTL_experiment.txt', 'w') as f:
         f.write('# LTL Experiment Log\n')
@@ -171,8 +212,10 @@ if __name__ == "__main__":
         f.write(f"Create data: {args.create_data}\n")
         f.write(f"Paraphrase: {args.paraphrase}\n")
         f.write(f"Translate: {args.translate}\n")
+        f.write(f"COT: {args.cot}\n")
         f.write(f"Evaluate: {args.evaluate}\n")
         f.write(f"Lang2LTL: {args.lang2ltl}\n")
+        f.write(f"Plot: {args.plot}\n")
         f.write(f"Experiment started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
     if args.paraphrase or args.translate:
         client = OpenAI()
@@ -188,49 +231,25 @@ if __name__ == "__main__":
             paraphrased = data_augmentation(client=client, model=model, utterance=utterance)
             d["paraphrased_utterances"] = paraphrased
     if args.translate:
+        cot = args.cot
+        input_label = "poll_translations"
+        output_label = input_label + "_to_GPT5" + ("-COT" if cot else "")
         # Translate paraphrased utterances
         for d in data:
-            paraphrased_utterances = d["paraphrased_utterances"]
-            d["translated_ltls"] = []
-            for p in paraphrased_utterances:
-                translated_ltl = lang_to_ltl(client=client, model=model, utterance=p)
-                d["translated_ltls"].append(translated_ltl)
-    if args.evaluate:
-        # Evaluate equivalence of translated LTLs with correct LTL
-        for d in data:
-            correct_ltl = d["formula"]
-            translated_ltls = d["translated_ltls"]
-            num_symbols = d["num_symbols"]
-            success_count = 0
-            total_count = len(translated_ltls)
-            for translated_ltl in translated_ltls:
-                print(f"Checking equivalence between translated LTL: {translated_ltl} and correct LTL: {correct_ltl}")
-                equivalence = check_equivalence(translated_ltl, correct_ltl, num_symbols)
-                if equivalence:
-                    success_count += 1
-            success_rate = success_count / total_count
-            print(f"Paraphrase success rate for formula '{correct_ltl}': {success_rate:.2f}")
-            d["paraphrased_success_rate_spot"] = success_rate
+            utterances = d[input_label]
+            for p in utterances[18:]:
+                ltl = lang_to_ltl(client=client, model=model, utterance=p, cot=cot)
+                print(f'Paraphrased Utt: {p} > LTL: {ltl}')
+                d[output_label].append(ltl)
     if args.lang2ltl:
+        input_label = "poll_translations"
+        output_label = input_label + "_to_Lang2LTL"
         for d in data:
-            nl_utterances = d['natural_language_utterances']
-            ltls = []
-            for nlu in nl_utterances:
+            nl_utterances = d[input_label]
+            for nlu in nl_utterances[18:]:
                 ltl = translate(nlu)
-                ltls.append(ltl)
+                d[output_label].append(ltl)
                 print(f'NL Utt: {nlu} > LTL: {ltl}')
-            d['lang2ltl_translations'] = ltls
-    if args.plot:
-        plot_equivalence_results(data)
-    if args.to_symbolic:
-        for d in data:
-            translated_ltls = d.get("lang2ltl_translations", [])
-            symbolic_ltls = []
-            for ltl in translated_ltls:
-                symbolic_ltl = toSymbolic(ltl)
-                symbolic_ltls.append(symbolic_ltl)
-                print(f'Translated LTL: {ltl} > Symbolic LTL: {symbolic_ltl}')
-            d['symbolic_lang2ltl_translations'] = symbolic_ltls
     if args.filter:
         for d in data:
             ground_truth = d['formula']
@@ -240,6 +259,26 @@ if __name__ == "__main__":
                 if not check_equivalence(ltl, ground_truth, d['num_symbols']):
                     filtered_ltls.append(ltl)
             d['filtered_symbolic_lang2ltl_translations'] = filtered_ltls
+    if args.evaluate:
+        # Evaluate equivalence of translated LTLs with correct LTL
+        input_label = "natural_language_utterances_to_GPT5-COT"
+        output_label = input_label + "_accuracy"
+        for d in data:
+            correct_ltl = d["formula"]
+            translated_ltls = d[input_label]
+            num_symbols = d["num_symbols"]
+            success_count = 0
+            total_count = len(translated_ltls)
+            for translated_ltl in translated_ltls:
+                print(f"Checking equivalence between translated LTL: {translated_ltl} and correct LTL: {correct_ltl}")
+                equivalence = check_equivalence(translated_ltl, correct_ltl, num_symbols)
+                if equivalence:
+                    success_count += 1  
+            success_rate = success_count / total_count if total_count > 0 else 0
+            print(f"Paraphrase success rate for formula '{correct_ltl}': {success_rate:.2f}")
+            d[output_label] = success_rate
+    if args.plot:
+        plot_equivalence_results(data)
     # Store data
     store_data()
     with open('LTL_experiment.txt', 'a') as f:
