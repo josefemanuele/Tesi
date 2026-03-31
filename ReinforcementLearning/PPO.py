@@ -66,7 +66,7 @@ class ActorCritic(nn.Module):
             )
             # compute cnn output size with a dummy pass
             with torch.no_grad():
-                dummy = torch.zeros(1, 3, 64, 64)
+                dummy = torch.zeros(1, 3, 64, 64, device=next(self.cnn.parameters()).device)
                 cnn_out = self.cnn(dummy).shape[1]
             if self.use_dfa:
                 dfa_dim = automaton.num_of_states
@@ -342,6 +342,8 @@ def train_ppo(device, env: GridWorldEnv, hidden=64,
             loader = DataLoader(dataset, batch_size=32, shuffle=True)
             for epoch in range(4):
                 seq, target = next(iter(loader))
+                seq = seq.to(device)
+                target = target.to(device)
                 rnn_optimizer.zero_grad()
                 pred, _ = rnn(seq)
                 if len(target) == 1:
