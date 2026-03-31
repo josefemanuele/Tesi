@@ -248,22 +248,6 @@ def train_ddqn(device, env: GridWorldEnv, hidden=64, episodes=10_000, max_steps=
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
-                if use_rnn and len(reward_trajectories) > 0:
-                    dataset = RNN.RewardTrajectoryDataset(reward_trajectories, window=rnn_window, device=device)
-                    if len(dataset) > 0:
-                        loader = DataLoader(dataset, batch_size=32, shuffle=True)
-                        for epoch in range(1):
-                            seq, target_reward = next(iter(loader))
-                            seq = seq.to(device)
-                            target_reward = target_reward.to(device)
-                            rnn_optimizer.zero_grad()
-                            pred_reward, _ = rnn(seq)
-                            if len(target_reward) == 1:
-                                target_reward = target_reward.unsqueeze(0)
-                            rnn_loss = criterion(pred_reward, target_reward)
-                            rnn_loss.backward()
-                            rnn_optimizer.step()
-                            rnn_losses.append(rnn_loss.item())
             if total_steps % target_update == 0:
                 target.load_state_dict(online.state_dict())
             if terminal:
@@ -274,6 +258,23 @@ def train_ddqn(device, env: GridWorldEnv, hidden=64, episodes=10_000, max_steps=
         # if ep % logging_rate == 0:
         #     line = f"Episode {ep:4d} | steps {total_steps:6d} | steps/episode {total_steps/ep:4.2f} | reward {total_reward:5.2f} | reward/episode {reward_sum/ep:5.2f} | epsilon {eps_threshold:.3f} | buffer {len(buffer)}"
         #     print(line)
+        # Train RNN after episode completes
+        if use_rnn and len(reward_trajectories) > 0:
+            dataset = RNN.RewardTrajectoryDataset(reward_trajectories, window=rnn_window, device=device)
+            if len(dataset) > 0:
+                loader = DataLoader(dataset, batch_size=32, shuffle=True)
+                for epoch in range(4):
+                    seq, target_reward = next(iter(loader))
+                    seq = seq.to(device)
+                    target_reward = target_reward.to(device)
+                    rnn_optimizer.zero_grad()
+                    pred_reward, _ = rnn(seq)
+                    if len(target_reward) == 1:
+                        target_reward = target_reward.unsqueeze(0)
+                    rnn_loss = criterion(pred_reward, target_reward)
+                    rnn_loss.backward()
+                    rnn_optimizer.step()
+                    rnn_losses.append(rnn_loss.item())
         # Early stopping if solved consistently
         data.append((ep, episode_reward, step + 1, done, truncated, total_steps))
         # # Early stopping check
