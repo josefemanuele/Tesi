@@ -217,7 +217,7 @@ def train_ddqn(device, env: GridWorldEnv, hidden=64, episodes=10_000, max_steps=
             terminal = bool(done or truncated)
             next_rnn_state = None
             if use_rnn:
-                reward_trajectory.add(episode_reward / 100.0)
+                reward_trajectory.add(reward / 100.0)
                 traj = torch.tensor(reward_trajectory.get_trajectory(), dtype=torch.float32, device=device).unsqueeze(0).unsqueeze(-1)
                 with torch.no_grad():
                     _, next_rnn_state = rnn(traj)
@@ -264,17 +264,17 @@ def train_ddqn(device, env: GridWorldEnv, hidden=64, episodes=10_000, max_steps=
             if len(dataset) > 0:
                 loader = DataLoader(dataset, batch_size=32, shuffle=True)
                 for epoch in range(4):
-                    seq, target_reward = next(iter(loader))
-                    seq = seq.to(device)
-                    target_reward = target_reward.to(device)
-                    rnn_optimizer.zero_grad()
-                    pred_reward, _ = rnn(seq)
-                    if len(target_reward) == 1:
-                        target_reward = target_reward.unsqueeze(0)
-                    rnn_loss = criterion(pred_reward, target_reward)
-                    rnn_loss.backward()
-                    rnn_optimizer.step()
-                    rnn_losses.append(rnn_loss.item())
+                    for seq, target_reward in loader:
+                        seq = seq.to(device)
+                        target_reward = target_reward.to(device)
+                        rnn_optimizer.zero_grad()
+                        pred_reward, _ = rnn(seq)
+                        if len(target_reward) == 1:
+                            target_reward = target_reward.unsqueeze(0)
+                        rnn_loss = criterion(pred_reward, target_reward)
+                        rnn_loss.backward()
+                        rnn_optimizer.step()
+                        rnn_losses.append(rnn_loss.item())
         # Early stopping if solved consistently
         data.append((ep, episode_reward, step + 1, done, truncated, total_steps))
         # # Early stopping check

@@ -279,6 +279,7 @@ def train_ppo(device, env: GridWorldEnv, hidden=64,
                     with torch.no_grad():
                         _, rnn_state = rnn(traj)
                 state = obs_to_state(obs, env, device, rnn_state)
+            rnn_state_for_transition = rnn_state
             # Evaluate action, log_prob, and value
             with torch.no_grad():
                 action, log_prob, value, _ = model.get_action_and_value(state, rnn_state)
@@ -289,12 +290,12 @@ def train_ppo(device, env: GridWorldEnv, hidden=64,
             total_steps += 1
             # Update RNN state
             if use_rnn:
-                reward_trajectory.add(episode_reward / 100.0)  # Normalize reward for RNN
+                reward_trajectory.add(reward / 100.0)  # Normalize step reward for RNN
                 traj = torch.tensor(reward_trajectory.get_trajectory(), dtype=torch.float32, device=device).unsqueeze(0).unsqueeze(-1)
                 with torch.no_grad():
                     _, rnn_state = rnn(traj)
             # Store transition
-            buffer.push(state, action, reward, log_prob, value, done, truncated, rnn_state)
+            buffer.push(state, action, reward, log_prob, value, done, truncated, rnn_state_for_transition)
             # Update state
             next_state = obs_to_state(next_obs, env, device, rnn_state)
             state = next_state
@@ -339,19 +340,20 @@ def train_ppo(device, env: GridWorldEnv, hidden=64,
         # RRN on rewards.
         if use_rnn:
             dataset = RNN.RewardTrajectoryDataset(reward_trajectories, window=rnn_window, device=device)
-            loader = DataLoader(dataset, batch_size=32, shuffle=True)
-            for epoch in range(4):
-                seq, target = next(iter(loader))
-                seq = seq.to(device)
-                target = target.to(device)
-                rnn_optimizer.zero_grad()
-                pred, _ = rnn(seq)
-                if len(target) == 1:
-                    target = target.unsqueeze(0)
-                loss = criterion(pred, target)
-                loss.backward()
-                rnn_optimizer.step()
-                rnn_losses.append(loss.item())
+            if len(dataset) > 0:
+                loader = DataLoader(dataset, batch_size=32, shuffle=True)
+                for epoch in range(4):
+                    for seq, target in loader:
+                        seq = seq.to(device)
+                        target = target.to(device)
+                        rnn_optimizer.zero_grad()
+                        pred, _ = rnn(seq)
+                        if len(target) == 1:
+                            target = target.unsqueeze(0)
+                        loss = criterion(pred, target)
+                        loss.backward()
+                        rnn_optimizer.step()
+                        rnn_losses.append(loss.item())
         for epoch in range(epochs):
             # Shuffle indices
             indices = np.arange(len(buffer))
